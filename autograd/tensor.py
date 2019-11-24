@@ -6,6 +6,7 @@ class Dependency(NamedTuple):
     tensor: 'Tensor'
     grad_fn : Callable[[np.ndarray], np.ndarray]
 
+
 Arrayable = Union[float, list, np.array]
 
 def ensure_array(arrayable: Arrayable) -> np.ndarray:
@@ -13,6 +14,8 @@ def ensure_array(arrayable: Arrayable) -> np.ndarray:
         return arrayable
     else:
         return np.array(arrayable)
+
+
 
 class Tensor: 
     def __init__(self,
@@ -31,11 +34,9 @@ class Tensor:
     def zero_grad(self) -> None:
         self.grad = Tensor(np.zeros_like(self.data))
 
-    def __repr__(self) -> str:
-        return f"Tensor({self.data}, requires_grad={self.requires_grad})"
 
     def backward(self, grad: 'Tensor' = None) -> None:
-        assert self.requires_grad, "alled backeard on non-requires_grad tensor"
+        assert self.requires_grad, "called backward on non-requires_grad tensor"
 
         if grad is None:
             if self.shape == ():
@@ -52,6 +53,22 @@ class Tensor:
     
     def sum(self) -> 'Tensor':
         return tensor_sum(self)
+
+    def __repr__(self) -> str:
+        return f"Tensor({self.data}, requires_grad={self.requires_grad})"
+
+    """
+    operations
+    """
+    def __add__(self, t2):
+        if not isinstance(t2,Tensor):
+            t2 = Tensor(t2)
+        return add(self,t2)
+
+
+
+
+
 
 def tensor_sum(t:Tensor) -> Tensor:
     """
@@ -76,3 +93,24 @@ def tensor_sum(t:Tensor) -> Tensor:
     return Tensor(data,
                     requires_grad,
                     depends_on) 
+    
+def add(t1: Tensor, t2: Tensor) -> Tensor:
+    data = t1.data + t2.data
+    requires_grad = t1.requires_grad or t2.requires_grad
+
+    depends_on: List[Dependency] = []
+    if t1.requires_grad:
+        def grad_fn1(grad: np.ndarray) -> np.ndarray:
+            # [1,2,3] + [4,5,6] => [5,7,9]
+            return grad
+        depends_on.append(Dependency(t1,grad_fn1))
+    if t2.requires_grad:
+        def grad_fn2(grad:np.ndarray) -> np.ndarray:
+            return grad
+        depends_on.append(Dependency(t2, grad_fn2))
+    
+    return Tensor(data,
+                    requires_grad,
+                    depends_on) 
+
+        
