@@ -36,13 +36,13 @@ class Tensor:
 
 
     def backward(self, grad: 'Tensor' = None) -> None:
-        assert self.requires_grad, "called backward on non-requires_grad tensor"
+        assert self.requires_grad, "在无梯度记录要求的Tensor上调用backward()"
 
         if grad is None:
-            if self.shape == ():
+            if self.shape == (0,):
                 grad = Tensor(1.)
             else:
-                raise RuntimeError("grad must be specified for non-0-tensor")
+                raise RuntimeError("梯度必须为非空Tensor指定")
         
         self.grad.data += grad.data
 
