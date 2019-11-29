@@ -1,4 +1,9 @@
 import numpy as np
+np.set_printoptions(
+    suppress = True,
+    precision = 3,
+    formatter = {'float':'{:0.4f}'.format}
+    )
 from typing import List, NamedTuple, Callable, Optional, Union
 
 
@@ -41,6 +46,21 @@ class Tensor:
         if self.requires_grad:
             self.zero_grad()
 
+    @staticmethod
+    def zeors(*shape, requires_grad:bool=False) -> 'Tensor':
+        data = np.zeros(shape)
+        return Tensor(data,requires_grad)
+
+    @staticmethod
+    def ones(*shape,requires_grad:bool=False) -> 'Tensor':
+        return Tensor(np.ones(shape),requires_grad)
+
+    @staticmethod
+    def randn(*shape,requires_grad:bool=False) -> 'Tensor':
+        return Tensor(np.random.randn(*shape), requires_grad)
+
+
+
     @property
     def data(self) -> np.ndarray:
         return self._data
@@ -60,20 +80,23 @@ class Tensor:
             if self.shape == ():
                 grad = Tensor(1.0)
             else:
-                raise RuntimeError("梯度必须为非空Tensor指定")
+                raise RuntimeError("梯度必须为Scaler指定")
 
         self.grad.data = self.grad.data + grad.data
 
         for dependency in self.depends_on:
             backward_grad = dependency.grad_fn(grad.data)
             dependency.tensor.backward(Tensor(backward_grad))
+        grad = None
 
     def sum(self) -> 'Tensor':
         return _tensor_sum(self)
 
     def __repr__(self) -> str:
-        return f"Tensor({self.data}, requires_grad={self.requires_grad})"
-
+        if self.requires_grad:
+            return f"形状->{self.shape}    梯度 [有]\n{repr(self.data)}"
+        else:
+            return f"{repr(self.data)}"
     # Operations
 
     def __add__(self, var) -> 'Tensor':
@@ -99,6 +122,15 @@ class Tensor:
         self.data = self.data * ensure_tensor(var).data
         self.grad = None
         return self
+
+    def __truediv__(self, var) -> 'Tensor':
+        return _div(self, ensure_tensor(var))
+
+    def __pow__(self,var) -> 'Tensor':
+        tensor = self
+        for _ in range(var-1):
+            tensor = tensor * self
+        return tensor
 
     def __matmul__(self, var) -> 'Tensor':
         return _matmul(self, var)
@@ -279,3 +311,45 @@ def _slice(t: Tensor, idx: slice) -> Tensor:
         depends_on = []
 
     return Tensor(data, requires_grad, depends_on)
+
+def _div(t1:Tensor, t2:Tensor) -> Tensor:
+    data = t1.data / t2.data
+    requires_grad = t1.requires_grad or t2.requires_grad
+    depends_on: List[Dependency] = []
+
+    if t1.requires_grad:
+        def grad_fn1(grad: np.ndarray) -> np.ndarray:
+            grad = grad / t2.data
+            # Sum out added dims
+            ndims_added = grad.ndim - t1.data.ndim
+            for _ in range(ndims_added):
+                grad = grad.sum(axis=0)
+
+            # Sum across broadcasted (but non-added dims)
+            for i, dim in enumerate(t1.shape):
+                if dim == 1:
+                    grad = grad.sum(axis=i, keepdims=True)
+
+            return grad
+
+        depends_on.append(Dependency(t1, grad_fn1))
+    if t2.requires_grad:
+        def grad_fn2(grad: np.ndarray) -> np.ndarray:
+            grad = grad / t1.data
+            # Sum out added dims
+            ndims_added = grad.ndim - t2.data.ndim
+            for _ in range(ndims_added):
+                grad = grad.sum(axis=0)
+
+            # Sum across broadcasted (but non-added dims)
+            for i, dim in enumerate(t2.shape):
+                if dim == 1:
+                    grad = grad.sum(axis=i, keepdims=True)
+
+            return grad
+
+        depends_on.append(Dependency(t2, grad_fn2))
+
+    return Tensor(data,
+                  requires_grad,
+                  depends_on)

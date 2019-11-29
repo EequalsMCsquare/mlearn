@@ -15,3 +15,10 @@ class Module:
     def zero_grad(self):
         for parameter in self.parameters():
             parameter.zero_grad()
+
+    def forward(self, inputs):
+        pass
+
+    def __call__(self, inputs):
+        return self.forward(inputs)
+

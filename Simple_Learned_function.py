@@ -1,4 +1,4 @@
-from autograd import Tensor, Parameter, Module
+from autograd import Tensor, Parameter, Module, SGD
 import numpy as np
 
 x_data = Tensor(np.random.randn(100, 3))
@@ -16,7 +16,7 @@ class MyModel(Module):
 
 
 batch_size = 32
-learning_rate = 0.001
+optimizer = SGD(0.001)
 model = MyModel()
 
 for epoch in range(100):
@@ -30,8 +30,7 @@ for epoch in range(100):
         errors = predicted - target
         loss = (errors * errors).sum()
         loss.backward()
-        model.w -= model.w.grad * learning_rate
-        model.b -= model.b.grad * learning_rate
+        optimizer.step(model)
 
     if epoch % 20 == 19:
         print(epoch, loss)
