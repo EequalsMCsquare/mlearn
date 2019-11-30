@@ -1,4 +1,5 @@
 from ..autograd.tensor import Tensor, Dependency, ensure_tensor
+from ..autograd.parameter import Parameter
 
 import numpy as np
 np.set_printoptions(

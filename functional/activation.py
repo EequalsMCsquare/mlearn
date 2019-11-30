@@ -73,7 +73,7 @@ def sigmoid(tensor: Tensor) -> Tensor:
     return Tensor(data, requires_grad, depends_on)
 
 
-def softmax(tensor: Tensor, dim: int) -> Tensor:
+def softmax(tensor: Tensor, dim: int = 1) -> Tensor:
     tensor = ensure_tensor(tensor)
 
     def _stable_softmax(x: np.ndarray) -> np.ndarray:
@@ -88,14 +88,16 @@ def softmax(tensor: Tensor, dim: int) -> Tensor:
         _tmp_data = tensor.data.T
     else:
         raise RuntimeError("请输入有效的Dim!!!")
-
     for x in _tmp_data:
         data.append(_stable_softmax(x))
     data = np.array(data) if dim == 1 else np.array(data).T
     requires_grad = tensor.requires_grad
-    if tensor.requires_grad:
-        raise NotImplementedError("这softmax的梯度咋整啊???")
-    else:
-        depends_on = []
-    # TODO: 梯度
+
+    # if tensor.requires_grad:
+    #     raise NotImplementedError("梯度！！！")
+    #     def grad_fn(grad:np.ndarray) -> np.ndarray:
+    #         pass
+    #     depends_on = [Dependency(tensor,grad_fn)]
+    # else:
+    depends_on = []
     return Tensor(data, requires_grad, depends_on)

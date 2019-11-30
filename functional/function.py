@@ -9,10 +9,14 @@ np.set_printoptions(
 
 """
 ################ Mathematic ########################
-exp
-abs
-round
-ceil
+exp [Y]
+abs [Y] 
+round [Y]
+ceil [Y]
+
+max [Y]
+mean [Y]
+min [Y]
 
 sin
 cos

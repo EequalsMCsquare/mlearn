@@ -4,5 +4,3 @@
 
 ## Requirements
 > numpy
-> pytest
-> mypy

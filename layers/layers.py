@@ -2,6 +2,7 @@ from ..autograd.tensor import Tensor
 from ..autograd.parameter import Parameter
 from .module import Module
 from ..functional import layers as F
+from ..functional import activation as A
 
 
 class Dense(Module):
@@ -48,5 +49,12 @@ class Dropout2d:
 
     def __call__(self,inputs):
         return self.forward(inputs)
+
+class ReLU:
+    def __init__(self):
+        pass
+    
+    def __call__(self,inputs):
+        return A.relu(inputs)
 
     

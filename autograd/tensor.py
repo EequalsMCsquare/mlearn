@@ -1,5 +1,8 @@
 from typing import List, NamedTuple, Callable, Optional, Union
 import numpy as np
+
+
+
 np.set_printoptions(
     suppress=True,
     precision=3,
@@ -70,6 +73,7 @@ class Tensor:
         self.grad.data = self.grad.data + grad.data
 
         for dependency in self.depends_on:
+            # print(dependency.grad_fn)
             backward_grad = dependency.grad_fn(grad.data)
             dependency.tensor.backward(Tensor(backward_grad))
         grad = None
@@ -101,7 +105,7 @@ class Tensor:
 
     def __repr__(self) -> str:
         if self.requires_grad:
-            return f"形状->{self.shape}    梯度 [有]\n{repr(self.data)}"
+            return f"形状->{self.shape}    梯度 [有]    {self.depends_on}\n{repr(self.data).replace('array','Tnsor')}"
         else:
             return f"{repr(self.data).replace('array','Tnsor')}"
 
@@ -186,6 +190,25 @@ def _tensor_sum(t: Tensor) -> Tensor:
     return Tensor(data,
                   requires_grad,
                   depends_on)
+
+
+
+def zeros(*shape, requires_grad: bool = False) -> 'Tensor':
+    data = np.zeros(shape)
+    return Tensor(data, requires_grad)
+
+
+def ones(*shape, requires_grad: bool = False) -> 'Tensor':
+    return Tensor(np.ones(shape), requires_grad)
+
+
+def randn(*shape, requires_grad: bool = False) -> 'Tensor':
+    return Tensor(np.random.randn(*shape), requires_grad)
+
+
+
+
+
 
 
 def _add(t1: Tensor, t2: Tensor) -> Tensor:
@@ -364,16 +387,3 @@ def _div(t1: Tensor, t2: Tensor) -> Tensor:
     return Tensor(data,
                   requires_grad,
                   depends_on)
-
-
-def zeros(*shape, requires_grad: bool = False) -> 'Tensor':
-    data = np.zeros(shape)
-    return Tensor(data, requires_grad)
-
-
-def ones(*shape, requires_grad: bool = False) -> 'Tensor':
-    return Tensor(np.ones(shape), requires_grad)
-
-
-def randn(*shape, requires_grad: bool = False) -> 'Tensor':
-    return Tensor(np.random.randn(*shape), requires_grad)
