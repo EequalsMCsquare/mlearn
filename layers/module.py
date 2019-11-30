@@ -1,8 +1,8 @@
 import inspect
 from typing import Iterator
 
-from autograd.tensor import Tensor
-from autograd.parameter import Parameter
+from ..autograd.tensor import Tensor
+from ..autograd.parameter import Parameter
 
 class Module:
     def parameters(self) ->  Iterator[Parameter]:
@@ -15,7 +15,7 @@ class Module:
     def zero_grad(self):
         for parameter in self.parameters():
             parameter.zero_grad()
-
+    
     def forward(self, inputs):
         pass
 

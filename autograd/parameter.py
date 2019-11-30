@@ -2,7 +2,7 @@
 import numpy as np
 
 
-from autograd.tensor import Tensor
+from .tensor import Tensor
 
 class Parameter(Tensor):
     def __init__(self, *shape) -> None:

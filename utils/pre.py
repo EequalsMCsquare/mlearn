@@ -1,4 +1,6 @@
 import numpy as np
+from autograd import tensor
+
 
 def one_hot(labels: np.ndarray) -> np.ndarray:
     """
@@ -6,9 +8,8 @@ def one_hot(labels: np.ndarray) -> np.ndarray:
     参数: labels
     return一个ndArray
     """
-    if type(labels) != type(np.array([])):
-        labels = np.array(labels)
 
+    labels = tensor.ensure_array(labels)
     result = np.array([])
     class_num = len(set(labels.copy()))
     temp = np.identity(class_num)
@@ -38,9 +39,9 @@ def normalize(features):
     return features / np.max(features)
 
 
-def data_shuffle_v2(features, labels):
+def data_shuffle(features, labels):
     """
-    input: features, labels(ndarray)
+    input: features, labels(ndarray)ju
     return: shuffled features, shuffled labels
     效率显著提升
     """
@@ -65,7 +66,7 @@ def data_split(features, labels, ratio=0.25, shuffle=False):
     返回-> (x_train,y_train),(x_test,y_test)
     """
     if shuffle == True:
-        features, labels = (data_shuffle_v2(features, labels))
+        features, labels = (data_shuffle(features, labels))
 
     samples = features.shape[0]
     rng = int(samples * (1 - ratio))
@@ -77,3 +78,10 @@ def data_split(features, labels, ratio=0.25, shuffle=False):
     print("Part2: {} {}".format(x_test.shape, y_test.shape))
 
     return (x_train, y_train), (x_test, y_test)
+
+def toTensor(var):
+    """
+    将 float, List, np.ndarray
+    转换为Tensor
+    """
+    return tensor.ensure_tensor(var)

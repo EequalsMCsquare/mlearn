@@ -1,10 +1,10 @@
+from typing import List, NamedTuple, Callable, Optional, Union
 import numpy as np
 np.set_printoptions(
-    suppress = True,
-    precision = 3,
-    formatter = {'float':'{:0.4f}'.format}
-    )
-from typing import List, NamedTuple, Callable, Optional, Union
+    suppress=True,
+    precision=3,
+    formatter={'float': '{:0.4f}'.format}
+)
 
 
 class Dependency(NamedTuple):
@@ -46,21 +46,6 @@ class Tensor:
         if self.requires_grad:
             self.zero_grad()
 
-    @staticmethod
-    def zeors(*shape, requires_grad:bool=False) -> 'Tensor':
-        data = np.zeros(shape)
-        return Tensor(data,requires_grad)
-
-    @staticmethod
-    def ones(*shape,requires_grad:bool=False) -> 'Tensor':
-        return Tensor(np.ones(shape),requires_grad)
-
-    @staticmethod
-    def randn(*shape,requires_grad:bool=False) -> 'Tensor':
-        return Tensor(np.random.randn(*shape), requires_grad)
-
-
-
     @property
     def data(self) -> np.ndarray:
         return self._data
@@ -80,7 +65,7 @@ class Tensor:
             if self.shape == ():
                 grad = Tensor(1.0)
             else:
-                raise RuntimeError("梯度必须为Scaler指定")
+                raise RuntimeError("只能够对Scaler进行求导")
 
         self.grad.data = self.grad.data + grad.data
 
@@ -92,12 +77,37 @@ class Tensor:
     def sum(self) -> 'Tensor':
         return _tensor_sum(self)
 
+    def float(self) -> 'Tensor':
+        data = self.data.astype(np.float64)
+        requires_grad = self.requires_grad
+        depends_on = self.depends_on
+        return Tensor(data, requires_grad, depends_on)
+
+    def long(self) -> 'Tensor':
+        data = self.data.astype(np.long)
+        requires_grad = self.requires_grad
+        depends_on = self.depends_on
+        return Tensor(data, requires_grad, depends_on)
+
+    def reshape(self, *shape) -> 'Tensor':
+        return Tensor(self.data.reshape(shape),
+                      self.requires_grad,
+                      self.depends_on)
+
+    def flatten(self) -> 'Tensor':
+        return Tensor(self.data.flatten(),
+                      self.requires_grad,
+                      self.depends_on)
+
     def __repr__(self) -> str:
         if self.requires_grad:
             return f"形状->{self.shape}    梯度 [有]\n{repr(self.data)}"
         else:
-            return f"{repr(self.data)}"
-    # Operations
+            return f"{repr(self.data).replace('array','Tnsor')}"
+
+    """
+    ####################### Operators ###########################
+    """
 
     def __add__(self, var) -> 'Tensor':
         # self + var
@@ -126,7 +136,7 @@ class Tensor:
     def __truediv__(self, var) -> 'Tensor':
         return _div(self, ensure_tensor(var))
 
-    def __pow__(self,var) -> 'Tensor':
+    def __pow__(self, var) -> 'Tensor':
         tensor = self
         for _ in range(var-1):
             tensor = tensor * self
@@ -312,7 +322,8 @@ def _slice(t: Tensor, idx: slice) -> Tensor:
 
     return Tensor(data, requires_grad, depends_on)
 
-def _div(t1:Tensor, t2:Tensor) -> Tensor:
+
+def _div(t1: Tensor, t2: Tensor) -> Tensor:
     data = t1.data / t2.data
     requires_grad = t1.requires_grad or t2.requires_grad
     depends_on: List[Dependency] = []
@@ -353,3 +364,16 @@ def _div(t1:Tensor, t2:Tensor) -> Tensor:
     return Tensor(data,
                   requires_grad,
                   depends_on)
+
+
+def zeros(*shape, requires_grad: bool = False) -> 'Tensor':
+    data = np.zeros(shape)
+    return Tensor(data, requires_grad)
+
+
+def ones(*shape, requires_grad: bool = False) -> 'Tensor':
+    return Tensor(np.ones(shape), requires_grad)
+
+
+def randn(*shape, requires_grad: bool = False) -> 'Tensor':
+    return Tensor(np.random.randn(*shape), requires_grad)

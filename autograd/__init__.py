@@ -1,5 +1,5 @@
-from autograd.module import Module
-from autograd.tensor import Tensor
-from autograd.parameter import Parameter
-from autograd.optimizer import SGD
-from autograd.layers import Dense
+from ..layers import Module
+from .tensor import Tensor as tensor
+from .tensor import Dependency
+from .parameter import Parameter
+from .tensor import ones, randn, zeros
