@@ -16,7 +16,6 @@ class SGD:
     def step(self) -> None:
         for parameter in self.module.parameters():
             parameter -= parameter.grad * self.lr
-            print(type(parameter.grad))
             # 之前
             # parameter  = parameter - parameter.grad * self.lr
 
@@ -36,7 +35,7 @@ class RMSProp:
                 self.v = np.zeros_like(parameter.data)
             self.v = self.alpha * self.v
             self.v = self.v + (1-self.alpha) * parameter.grad**2
-            eta = self.lr / (sqrt(self.v) + self.eps)
+            eta = self.lr / (np.sqrt(self.v) + self.eps)
             parameter -=   parameter.grad * eta
             print(1)
 

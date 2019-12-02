@@ -38,7 +38,6 @@ def abs(tensor: Tensor) -> Tensor:
             _self_grad[_self_grad < 0] = -1
             _self_grad[_self_grad > 0] = 1
             return grad * _self_grad
-            print(_self_grad)
         depends_on = [Dependency(tensor, grad_fn)]
     else:
         depends_on = []
