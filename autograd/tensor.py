@@ -1,12 +1,10 @@
 from typing import List, NamedTuple, Callable, Optional, Union
 import numpy as np
 
-
-
 np.set_printoptions(
     suppress=True,
     precision=3,
-    formatter={'float': '{:0.4f}'.format}
+    formatter={'float': '{:0.3f}'.format}
 )
 
 
@@ -59,7 +57,7 @@ class Tensor:
         self.grad = None
 
     def zero_grad(self) -> None:
-        self.grad = Tensor(np.zeros_like(self.data, dtype=np.float64))
+        self.grad = Tensor(np.zeros_like(self.data))
 
     def backward(self, grad: 'Tensor' = None) -> None:
         assert self.requires_grad, "在无梯度记录要求的Tensor上调用backward()"
@@ -73,10 +71,10 @@ class Tensor:
         self.grad.data = self.grad.data + grad.data
 
         for dependency in self.depends_on:
-            # print(dependency.grad_fn)
+            
             backward_grad = dependency.grad_fn(grad.data)
             dependency.tensor.backward(Tensor(backward_grad))
-        grad = None
+        #grad = None
 
     def sum(self) -> 'Tensor':
         return _tensor_sum(self)
@@ -105,7 +103,7 @@ class Tensor:
 
     def __repr__(self) -> str:
         if self.requires_grad:
-            return f"形状->{self.shape}    梯度 [有]    {self.depends_on}\n{repr(self.data).replace('array','Tnsor')}"
+            return f"形状->{self.shape}    梯度 [有]\n{repr(self.data).replace('array','Tnsor')}"
         else:
             return f"{repr(self.data).replace('array','Tnsor')}"
 
@@ -123,7 +121,7 @@ class Tensor:
 
     def __iadd__(self, var) -> 'Tensor':
         self.data = self.data + ensure_tensor(var).data
-        self.grad = None
+        # self.grad = None
         return self
 
     def __mul__(self, var) -> 'Tensor':
@@ -134,7 +132,7 @@ class Tensor:
 
     def __imul__(self, var) -> 'Tensor':
         self.data = self.data * ensure_tensor(var).data
-        self.grad = None
+        #self.grad = None
         return self
 
     def __truediv__(self, var) -> 'Tensor':
@@ -157,7 +155,6 @@ class Tensor:
 
     def __isub__(self, var) -> 'Tensor':
         self.data = self.data - ensure_tensor(var).data
-        self.grad = None
         return self
 
     def __getitem__(self, idxs) -> 'Tensor':
@@ -354,12 +351,10 @@ def _div(t1: Tensor, t2: Tensor) -> Tensor:
     if t1.requires_grad:
         def grad_fn1(grad: np.ndarray) -> np.ndarray:
             grad = grad / t2.data
-            # Sum out added dims
             ndims_added = grad.ndim - t1.data.ndim
             for _ in range(ndims_added):
                 grad = grad.sum(axis=0)
 
-            # Sum across broadcasted (but non-added dims)
             for i, dim in enumerate(t1.shape):
                 if dim == 1:
                     grad = grad.sum(axis=i, keepdims=True)
@@ -370,12 +365,10 @@ def _div(t1: Tensor, t2: Tensor) -> Tensor:
     if t2.requires_grad:
         def grad_fn2(grad: np.ndarray) -> np.ndarray:
             grad = grad / t1.data
-            # Sum out added dims
             ndims_added = grad.ndim - t2.data.ndim
             for _ in range(ndims_added):
                 grad = grad.sum(axis=0)
 
-            # Sum across broadcasted (but non-added dims)
             for i, dim in enumerate(t2.shape):
                 if dim == 1:
                     grad = grad.sum(axis=i, keepdims=True)

@@ -4,7 +4,7 @@ import numpy as np
 np.set_printoptions(
     suppress=True,
     precision=3,
-    formatter={'float': '{:0.4f}'.format}
+    formatter={'float': '{:0.3f}'.format}
 )
 
 """
@@ -112,4 +112,17 @@ def min(tensor: Tensor) -> Tensor:
         depends_on = []
 
     return Tensor(data, requires_grad, depends_on)
+
+def sqrt(tensor: Tensor) -> Tensor:
+    tensor = ensure_tensor(tensor)
+    data = np.sqrt(tensor.data)
+    requires_grad = tensor.requires_grad
+
+    if requires_grad:
+        def sqrt_Backward(grad: np.ndarray) -> np.ndarray:
+            return grad
+        depends_on = [Dependency(tensor,sqrt_Backward)]
+    else:
+        depends_on = []
+    return Tensor(data,requires_grad,depends_on)
 

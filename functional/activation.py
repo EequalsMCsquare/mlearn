@@ -4,7 +4,7 @@ import numpy as np
 np.set_printoptions(
     suppress=True,
     precision=3,
-    formatter={'float': '{:0.4f}'.format}
+    formatter={'float': '{:0.3f}'.format}
 )
 
 
@@ -14,13 +14,13 @@ np.set_printoptions(
 
 
 def tanh(tensor: Tensor) -> Tensor:
-    tensor = ensure_tensor(tensor)
+    assert isinstance(tensor, Tensor), "只能接受Tensor对象"
     data = np.tanh(tensor.data)
     requires_grad = tensor.requires_grad
 
     if requires_grad:
         def grad_fn(grad: np.ndarray) -> np.ndarray:
-            return grad * (1 - data * data)
+            return grad * (1 - data**2)
 
         depends_on = [Dependency(tensor, grad_fn)]
 
@@ -73,6 +73,7 @@ def sigmoid(tensor: Tensor) -> Tensor:
     return Tensor(data, requires_grad, depends_on)
 
 
+
 def softmax(tensor: Tensor, dim: int = 1) -> Tensor:
     tensor = ensure_tensor(tensor)
 
@@ -93,11 +94,11 @@ def softmax(tensor: Tensor, dim: int = 1) -> Tensor:
     data = np.array(data) if dim == 1 else np.array(data).T
     requires_grad = tensor.requires_grad
 
-    # if tensor.requires_grad:
-    #     raise NotImplementedError("梯度！！！")
-    #     def grad_fn(grad:np.ndarray) -> np.ndarray:
-    #         pass
-    #     depends_on = [Dependency(tensor,grad_fn)]
-    # else:
-    depends_on = []
-    return Tensor(data, requires_grad, depends_on)
+    if tensor.requires_grad:
+        raise NotImplementedError("梯度！！！")
+        def grad_fn(grad: np.ndarray) -> np.ndarray:
+            return grad
+        depends_on = [Dependency(tensor, grad_fn)]
+    else:
+        depends_on = []
+    return Tensor(data, requires_grad, tensor.depends_on)

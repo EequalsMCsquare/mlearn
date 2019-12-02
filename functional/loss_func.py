@@ -1,10 +1,11 @@
 from ..autograd.tensor import Tensor, Dependency, ensure_tensor
-from .activation import softmax
+from .activation import softmax as _softmax
 import numpy as np
+
 np.set_printoptions(
     suppress=True,
     precision=3,
-    formatter={'float': '{:0.4f}'.format}
+    formatter={'float': '{:0.3f}'.format}
 )
 
 
@@ -19,7 +20,10 @@ def mse(predicts: Tensor, targets: Tensor) -> Tensor:
     tmp = 1
     for x in predicts.shape:
         tmp *= x
-    result = ((predicts - targets) ** 2).sum()/tmp
+    # result = [data**2 for data in (predicts - targets)]#.sum()/tmp
+    result = ((predicts - targets)**2) .sum()/tmp
+    # return result
+
     data = result.data
     requires_grad = result.requires_grad
     if requires_grad:
@@ -29,9 +33,24 @@ def mse(predicts: Tensor, targets: Tensor) -> Tensor:
     return Tensor(data, requires_grad, depends_on)
 
 
+
 def cross_entropy(predicts: Tensor, targets: Tensor) -> Tensor:
+    # Stable softmax without grad compute
+    def softmax(tensor: Tensor):
+        def _stable_softmax(x: np.ndarray) -> np.ndarray:
+            x = x - np.max(x)
+            _sum = np.sum(np.exp(x))
+            return np.exp(x) / _sum
+        data = []
+        for x in predicts:
+            data.append(_stable_softmax(x.data))
+        data = np.array(data)
+        return Tensor(data, tensor.requires_grad,
+                      [Dependency(tensor, lambda x: x)])
+
     m = targets.shape[0]
     p = softmax(predicts).data
+    p[p == 0] = 1e-8 * np.random.randint(1, 10)
     log_likelihood = -np.log(p[range(m), targets.data])
     data = np.sum(log_likelihood) / m
 
@@ -41,8 +60,8 @@ def cross_entropy(predicts: Tensor, targets: Tensor) -> Tensor:
             p = softmax(predicts).data
             p[range(m), targets.data] -= 1
             p = p/m
-            return p
+            return p * grad
         depends_on = [Dependency(predicts, grad_fn)]
     else:
         depends_on = []
-    return Tensor(data, requires_grad, depends_on)
+    return (Tensor(data, requires_grad, depends_on))

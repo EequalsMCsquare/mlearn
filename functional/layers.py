@@ -5,7 +5,7 @@ import numpy as np
 np.set_printoptions(
     suppress=True,
     precision=3,
-    formatter={'float': '{:0.4f}'.format}
+    formatter={'float': '{:0.3f}'.format}
 )
 
 """
@@ -13,10 +13,13 @@ np.set_printoptions(
 """
 
 
-def dense(inputs: Tensor, weights: Tensor, bias: Tensor):
-    assert (inputs.shape[-1] == weights.shape[0]), "傻逼，[形状不匹配]"
-    return inputs @ weights + bias
+def dense(inputs: Tensor, weights: Tensor, bias: Tensor) -> Tensor:
+    #assert (inputs.shape[-1] == weights.shape[0]), "傻逼，[形状不匹配]"
+    for x in(inputs,weights,bias):
+        if not isinstance(x,Tensor):
+            raise TypeError("传播对象必须是一个Tensor!")
 
+    return inputs @ weights + bias
 
 # TODO: Dropout 没有考虑对于多维的处理
 """

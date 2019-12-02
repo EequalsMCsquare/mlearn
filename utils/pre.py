@@ -1,5 +1,5 @@
 import numpy as np
-from autograd import tensor
+from ..autograd import tensor
 
 
 def one_hot(labels: np.ndarray) -> np.ndarray:
