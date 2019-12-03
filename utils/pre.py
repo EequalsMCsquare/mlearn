@@ -20,23 +20,23 @@ def one_hot(labels: np.ndarray) -> np.ndarray:
 
 
 # 数据标准化
-def normalize_MinMax(features):
+def normalize_MinMax(features,labels):
     """
     只接受一个参数-->ndarray
     返回一个标准化后的数组
     """
-    return (features - np.min(features)) / (np.max(features) - np.min(features))
+    return (features - np.min(features)) / (np.max(features) - np.min(features)),labels
 
 
-def normalize_0Min(features):
+def normalize_0Min(features,labels):
     """
     标准差
     """
-    return (features - np.mean(features)) / np.std(features)
+    return (features - np.mean(features)) / np.std(features),labels
 
 
-def normalize(features):
-    return features / np.max(features)
+def normalize(features,labels):
+    return features / np.max(features), labels
 
 
 def data_shuffle(features, labels):
@@ -79,9 +79,9 @@ def data_split(features, labels, ratio=0.25, shuffle=False):
 
     return (x_train, y_train), (x_test, y_test)
 
-def toTensor(var):
+def toTensor(features, labels):
     """
     将 float, List, np.ndarray
     转换为Tensor
     """
-    return tensor.ensure_tensor(var)
+    return tensor.ensure_tensor(features),tensor.ensure_tensor(labels)

@@ -53,8 +53,14 @@ class Tensor:
 
     @data.setter
     def data(self, new_data: np.ndarray) -> None:
+
+        if isinstance(new_data,Tensor):
+            new_data = new_data.data
         self._data = new_data
         self.grad = None
+
+    def numpy(self) -> np.ndarray:
+        return self.data
 
     def zero_grad(self) -> None:
         self.grad = Tensor(np.zeros_like(self.data))
@@ -138,6 +144,9 @@ class Tensor:
     def __truediv__(self, var) -> 'Tensor':
         return _div(self, ensure_tensor(var))
 
+    def __rtruediv__(self,var) -> 'Tensor':
+        return _div(ensure_tensor(var),self)
+
     def __pow__(self, var) -> 'Tensor':
         tensor = self
         for _ in range(var-1):
@@ -193,6 +202,10 @@ def _tensor_sum(t: Tensor) -> Tensor:
 def zeros(*shape, requires_grad: bool = False) -> 'Tensor':
     data = np.zeros(shape)
     return Tensor(data, requires_grad)
+
+def zeros_like(tensor,requires_grad:bool = False) -> 'Tensor':
+    data = np.zeros(tensor.shape)
+    return Tensor(data,requires_grad)
 
 
 def ones(*shape, requires_grad: bool = False) -> 'Tensor':

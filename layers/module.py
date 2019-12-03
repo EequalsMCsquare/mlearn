@@ -21,3 +21,9 @@ class Module:
     
     def __call__(self,inputs):
         return self.forward(inputs)
+
+    def load_wb(self, PATH:str) -> None:
+        """
+        读取训练好的模型的Weights n' Bias
+        """
+        raise NotImplementedError("读取训练好的模型的Weights n' Bias")
