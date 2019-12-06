@@ -9,18 +9,18 @@ from ..functional import loss_func as F
 class Loss:
     def __init__(self):
         super().__init__()
-        self.hist = []
+        self.history = []
 
     def compute(self,predicts:Tensor, targets:Tensor):
         pass
 
     def __call__(self,predicts:Tensor, targets:Tensor):
         result = self.compute(predicts,targets)
-        self.hist.append(result.data)
+        self.history.append(result.data)
         return result
 
     def plot(self):
-        plt.show(self.hist)
+        plt.show(self.history)
         plt.show()
 
 class MSE(Loss):

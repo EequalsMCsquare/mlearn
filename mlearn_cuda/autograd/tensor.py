@@ -66,7 +66,8 @@ class Tensor(object):
                       self.depends_on)
 
     def long(self) -> 'Tensor':
-        return Tensor(self.data.astype(cp.int16),self.requires_grad,self.depends_on,self.grad)
+        self.data.astype(cp.int16)
+        return self
 
     def __repr__(self):
         return f"{self.data} requires_grad={self.requires_grad}" if self.requires_grad else\

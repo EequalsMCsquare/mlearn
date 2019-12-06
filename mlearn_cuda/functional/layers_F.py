@@ -25,13 +25,20 @@ def dense(inputs: Tensor, weights: Tensor, bias: Tensor) -> Tensor:
 def dropout_1d(inputs: Tensor, keep_prob: float) -> Tensor:
     assert (inputs.data.ndim > 1), "没有足够的维度来进行1D Dropout"
     mask_shape = inputs.shape[-1]
-    data = [(cp.random.uniform(0, 1.0, (mask_shape)) < keep_prob) *
-            x for x in inputs.data.reshape(-1, mask_shape)]
+    data = [((cp.random.uniform(0, 1.0, (mask_shape)) < keep_prob) *
+            x).tolist() for x in inputs.data.reshape(-1, mask_shape)]
     requires_grad = inputs.requires_grad
 
     if requires_grad:
         def grad_fn(grad:cp.ndarray) -> cp.ndarray:
             return (grad * 2) * (cp.array(data)!= 0)
         depends_on = [Dependency(inputs,grad_fn)]
+    else:
+        depends_on = []
 
     return Tensor(data, requires_grad, depends_on).reshape(*inputs.shape)
+
+
+def flatten(inputs:Tensor):
+    batch_size = inputs.shape[0]
+    return inputs.reshape(batch_size,-1)
