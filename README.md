@@ -1,7 +1,7 @@
 # MLearn
 > A Based on numpy (CPU) & cupy(CUDA) simple machine learning pakage
 
-## @ZHONG Xiao
+#### @ZHONG Xiao
 
 ## Requirements
 > Numpy  
