@@ -4,5 +4,5 @@
 ## @ZHONG Xiao
 
 ## Requirements
-> Numpy
+> Numpy  
 > Cupy (only if train on CUDA)
