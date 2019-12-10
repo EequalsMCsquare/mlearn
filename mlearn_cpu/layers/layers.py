@@ -17,8 +17,7 @@ class Dense(Module):
         return F.dense(inputs, self.w, self.b)
 
     def __repr__(self):
-        return f"全连接层\n输入形状->(Batch Size,{self.input_shape})\
-            输出形状->(Batch Size,{self.output_shape})"
+        return f"全连接层: (Batch Size,{self.input_shape}) -> (Batch Size,{self.output_shape})"
 
     def __call__(self,inputs):
         return self.forward(inputs)
@@ -57,4 +56,23 @@ class ReLU:
     def __call__(self,inputs):
         return A.relu(inputs)
 
-    
+
+class Flatten():
+    def __init__(self) -> None:
+        super().__init__()
+
+    def __call__(self, inputs: Tensor) -> Tensor:
+        return F.flatten(inputs)
+
+    def __repr__(self):
+        return "降维打击！！\n"
+
+class Tanh:
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return "Tanh层\n"
+
+    def __call__(self, inputs):
+        return A.tanh(inputs)

@@ -35,8 +35,8 @@ def mse(predicts: Tensor, targets: Tensor) -> Tensor:
 
 
 def cross_entropy(predicts: Tensor, targets: Tensor) -> Tensor:
-    # Stable softmax without grad compute
     def softmax(tensor: Tensor):
+        # Stable softmax without grad compute
         def _stable_softmax(x: np.ndarray) -> np.ndarray:
             x = x - np.max(x)
             _sum = np.sum(np.exp(x))

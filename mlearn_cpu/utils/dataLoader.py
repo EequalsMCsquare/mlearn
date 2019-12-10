@@ -1,6 +1,6 @@
 import numpy as np
 from ..autograd import tensor
-from .pre import *
+from .pre_F import *
 from typing import Tuple, Callable, List
 from ..autograd.tensor import ensure_array
 
@@ -15,6 +15,7 @@ class DataLoader:
             data_shuffle(dataset[0], dataset[1]) if shuffle else dataset
         self.batch_size = batch_size
         self.ToTensor = ToTensor
+        self.feature_shape = self.features.shape[1:]
         self.transform()
 
     @property

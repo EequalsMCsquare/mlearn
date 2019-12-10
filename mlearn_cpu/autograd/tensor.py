@@ -79,7 +79,6 @@ class Tensor:
         for dependency in self.depends_on:
             backward_grad = dependency.grad_fn(grad.data)
             dependency.tensor.backward(Tensor(backward_grad))
-        #grad = None
 
     def sum(self) -> 'Tensor':
         return _tensor_sum(self)

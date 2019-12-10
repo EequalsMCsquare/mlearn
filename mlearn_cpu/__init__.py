@@ -1,6 +1,6 @@
-from .autograd.tensor import Tensor as tensor
-from .functional import function
-from .autograd import randn, ones, zeros
+from .autograd.tensor import zeros, zeros_like, randn, ones
+from .functional import *
+from .optimizers import *
 from .layers import *
-from .utils import *
-from .models import *
+from .Loss import *
+from .autograd.tensor import Tensor as tensor
