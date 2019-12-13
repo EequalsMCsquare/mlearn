@@ -114,6 +114,7 @@ def sqrt(tensor: Tensor) -> Tensor:
 
     if requires_grad:
         def sqrt_Backward(grad: np.ndarray) -> np.ndarray:
+            raise NotImplementedError("TODO")
             return grad
         depends_on = [Dependency(tensor,sqrt_Backward)]
     else:
