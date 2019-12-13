@@ -28,7 +28,7 @@ def normalize_MinMax(features,labels):
     return (features - cp.min(features)) / (cp.max(features) - cp.min(features)),labels
 
 
-def normalize_0Min(features,labels):
+def normalize_0Mean(features,labels):
     """
     标准差
     """
