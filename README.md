@@ -9,9 +9,9 @@
 1. 基于numpy的矩阵运算
 2. 自动求道机制
 3. 优化器
-  - SGD
-  - Momentum
-  - RMSProp
+    - SGD
+    - Momentum
+    - RMSProp
 4. 激活函数
   - ReLU
   - Leaky ReLU
