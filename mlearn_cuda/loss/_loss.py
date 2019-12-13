@@ -1,6 +1,7 @@
 from ..autograd.tensor import Tensor
 import matplotlib.pyplot as plt
 from ..functional import loss_func as F
+import cupy as cp
 
 
 
@@ -15,7 +16,7 @@ class Loss:
 
     def __call__(self,predicts:Tensor, targets:Tensor):
         result = self.compute(predicts,targets)
-        self.history.append(result.data)
+        self.history.append(cp.asnumpy(result.data))
         return result
 
     def plot(self):
