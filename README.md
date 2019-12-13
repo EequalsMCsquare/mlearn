@@ -8,20 +8,25 @@
 ### Features
 1. 基于numpy的矩阵运算
 2. 自动求道机制
-3. 优化器
-    - SGD
-    - Momentum
-    - RMSProp
-4. 激活函数
+3. 激活函数
     - ReLU
     - Leaky ReLU
     - Tanh
-    - simoid
+    - Simoid
     - 无梯度计算的softmax `交叉熵误差函数一已经内置了softmax`
+4. 神经网络层
+    - Dense 全连接
+    - 2维卷积 `求导 Not Implemented`
+    - Flatten
+    - Dropout `好像有问题，忘记了`
 5. 误差函数
     - MSE
     - Cross Entropy
-6. 数据预处理
+6. 优化器
+    - SGD
+    - Momentum
+    - RMSProp
+7. 数据预处理
     - 标签One-hot
     - 归一化
     - Min Max归一化
