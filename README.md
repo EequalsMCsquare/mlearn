@@ -13,21 +13,21 @@
     - Momentum
     - RMSProp
 4. 激活函数
-  - ReLU
-  - Leaky ReLU
-  - Tanh
-  - simoid
-  - 无梯度计算的softmax `交叉熵误差函数一已经内置了softmax`
+    - ReLU
+    - Leaky ReLU
+    - Tanh
+    - simoid
+    - 无梯度计算的softmax `交叉熵误差函数一已经内置了softmax`
 5. 误差函数
-  - MSE
-  - Cross Entropy
+    - MSE
+    - Cross Entropy
 6. 数据预处理
-  - 标签One-hot
-  - 归一化
-  - Min Max归一化
-  - 0 Mean 归一化
-  - 打乱数据集
-  - 拆分数据集
-  - DataLoader: 数据集分批 -> 迭代器
+    - 标签One-hot
+    - 归一化
+    - Min Max归一化
+    - 0 Mean 归一化
+    - 打乱数据集
+    - 拆分数据集
+    - DataLoader: 数据集分批 -> 迭代器
   
 ### @ZHONG Xiao
