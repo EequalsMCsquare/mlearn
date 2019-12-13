@@ -2,11 +2,7 @@ from ..autograd.tensor import Tensor, Dependency, ensure_tensor
 from .activation import softmax as _softmax
 import numpy as np
 
-np.set_printoptions(
-    suppress=True,
-    precision=3,
-    formatter={'float': '{:0.3f}'.format}
-)
+
 
 
 """

@@ -1,11 +1,3 @@
-from ..autograd.tensor import Tensor, Dependency, ensure_tensor
-
-import numpy as np
-np.set_printoptions(
-    suppress=True,
-    precision=3,
-    formatter={'float': '{:0.4f}'.format}
-)
 
 """
 ################ Mathematic ########################
