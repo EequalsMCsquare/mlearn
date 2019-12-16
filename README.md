@@ -13,7 +13,7 @@
     - Leaky ReLU
     - Tanh
     - Simoid
-    - 无梯度计算的softmax `交叉熵误差函数一已经内置了softmax`
+    - 无梯度计算的softmax `交叉熵误差函数一已经内置了带梯度计算的softmax`
 4. 神经网络层
     - Dense 全连接
     - 2维卷积 `求导 Not Implemented`
