@@ -34,6 +34,6 @@
     - 0 Mean 归一化
     - 打乱数据集
     - 拆分数据集
-    - DataLoader: 数据集分批 -> 迭代器
+    - DataLoader: 数据集分批 -> 迭代器 `Performance has not been messured yet`
   
 #### @ZHONG Xiao
