@@ -51,6 +51,10 @@ class Tensor:
     def data(self) -> np.ndarray:
         return self._data
 
+    @property
+    def T(self) -> 'Tensor':
+        return self.transpose()
+
     @data.setter
     def data(self, new_data: np.ndarray) -> None:
 
@@ -58,6 +62,24 @@ class Tensor:
             new_data = new_data.data
         self._data = new_data
         self.grad = None
+
+    def __setGrad(self,grad: np.ndarray) -> None:
+        self.grad = grad
+
+    # Transpose
+    def transpose(self) -> 'Tensor':
+        _data = self.data.T
+        requires_grad = self.requires_grad
+        if requires_grad:
+            _grad = self.grad.T
+            depends_on = self.depends_on
+        else:
+            _grad = None
+            depends_on = []
+        _tensor = Tensor(_data,requires_grad,depends_on)
+        _tensor.__setGrad(_grad)
+        return _tensor
+        
 
     def numpy(self) -> np.ndarray:
         return self.data
@@ -84,7 +106,7 @@ class Tensor:
         return _tensor_sum(self)
 
     def float(self) -> 'Tensor':
-        data = self.data.astype(np.float64)
+        data = self.data.astype(np.float32)
         requires_grad = self.requires_grad
         depends_on = self.depends_on
         return Tensor(data, requires_grad, depends_on)
@@ -146,10 +168,9 @@ class Tensor:
         return _div(ensure_tensor(var),self)
 
     def __pow__(self, var) -> 'Tensor':
-        tensor = self
-        for _ in range(var-1):
-            tensor = tensor * self
-        return tensor
+        if not isinstance(var, (int, float)):
+            raise TypeError("次方只能是整型或浮点型")
+        return _pow(self,var)
 
     def __matmul__(self, var) -> 'Tensor':
         return _matmul(self, var)
@@ -300,6 +321,17 @@ def _mul(t1: Tensor, t2: Tensor) -> Tensor:
     return Tensor(data,
                   requires_grad,
                   depends_on)
+
+def _pow(t:Tensor, pow:float) -> Tensor:
+    data = t.data**pow
+    requires_grad = t.requires_grad
+    if requires_grad:
+        def pow_backward(grad: np.ndarray) -> np.ndarray:
+            return grad * (t.data**(pow-1))*pow
+        depends_on = [Dependency(t,pow_backward)]
+    else:
+        depends_on = []
+    return Tensor(data, requires_grad, depends_on)
 
 
 def _matmul(t1: Tensor, t2: Tensor) -> Tensor:
