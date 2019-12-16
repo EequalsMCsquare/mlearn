@@ -26,6 +26,7 @@
     - SGD
     - Momentum
     - RMSProp
+    - Adam `NotImplemented`
 7. 数据预处理
     - 标签One-hot
     - 归一化
