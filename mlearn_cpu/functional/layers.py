@@ -52,18 +52,16 @@ def flatten(inputs: Tensor):
 
 
 def conv_2d(inputs: Tensor, weights: Parameter,
-              bias: Parameter = None, stride: int = 1, padding: int = 0) -> Tensor:
+            bias: Parameter = None, stride: int = 1, padding: int = 0) -> Tensor:
     """
     inputs -> (Batch Size, Channel, Rows, Cols)
     weights -> (out_channel, in_channel, Rows, Cols)
     bias -> (out_channel, out_x, out_y)
-
     公式计算卷积后输出的形状
     height_out = (height_in - height_w + 2 * padding) // stride + 1
     width_out = (width_in - width_w + 2 * padding) // stride + 1
     out -> (Batch_size, out_channel, height_out, width_out)
     """
-    
     inputs = ensure_tensor(inputs)
     weights = ensure_tensor(weights)
     out_x = (inputs.shape[2] - weights.shape[2] + 2 * padding) // stride + 1
@@ -74,10 +72,12 @@ def conv_2d(inputs: Tensor, weights: Parameter,
     else:
         if bias.shape[0] == weights.shape[0] and len(bias.shape) == 1:
             bias = ensure_tensor(bias).reshape(2, 1, 1)
-        elif bias.shape == (weights.shape[0],1,1):
+        elif bias.shape == (weights.shape[0], 1, 1):
             bias = ensure_tensor(bias)
         else:
-            raise ValueError(f"Bias的形状和输出无法匹配, Expect Shape({weights.shape[0]}) 或 Shape{weights.shape[0], 1, 1}. But receive shape({bias.shape})")
+            raise ValueError(
+                f"Bias的形状和输出无法匹配, Expect Shape({weights.shape[0]})\
+                     或 Shape{weights.shape[0], 1, 1}. But receive shape({bias.shape})")
 
     requires_grad = inputs.requires_grad or weights.requires_grad
 
@@ -85,9 +85,12 @@ def conv_2d(inputs: Tensor, weights: Parameter,
                   weights.shape[1], weights.shape[2], weights.shape[3])
     batch_result = []
     # TODO 用C循环来代替python
+    # TODO 如果先初始化np.array()然后直接赋值结果是否会比append快 ???
+    # TODO MultiProcess
     for sample in inputs.data:
         arr = np.lib.stride_tricks.as_strided(
             sample, view_shape, sample.strides*2).reshape(view_shape[1:])
+        print(arr.shape)
         sample_result = []
         for out_dim in weights.data:
             single_channel_conv = []
@@ -102,6 +105,7 @@ def conv_2d(inputs: Tensor, weights: Parameter,
     if requires_grad:
         # TODO 卷积求导
         raise NotImplementedError("Conv2d 反向传播 Not Implemented yet")
+
         def conv2d_backward(grad: np.ndarray) -> np.ndarray:
             return grad
         depends_on = [Dependency(inputs, conv2d_backward)]
