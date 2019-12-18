@@ -4,6 +4,7 @@
 ## Requirements
 > Numpy  
 > Cupy (only if train on CUDA) 可能会在过后的版本取消。要是有时间的话就用numpy + C + CUDA代替
+    - Cupy has heen removed
 ----
 ### Features
 1. 基于numpy的矩阵运算
