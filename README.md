@@ -14,7 +14,7 @@
     - ReLU
     - Leaky ReLU
     - Tanh
-    - Simoid
+    - Sigmoid
     - 无梯度计算的softmax `交叉熵误差函数一已经内置了softmax`
 4. 神经网络层
     - Dense 全连接
