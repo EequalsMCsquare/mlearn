@@ -3,7 +3,7 @@
 
 ## Requirements
 > Numpy  
-> (Has been removed)~~Cupy (only if train on CUDA)~~ 要是有时间的话就用numpy + C + CUDA代替
+> ~~Cupy (only if train on CUDA)~~ (Has been removed) 要是有时间的话就用numpy + C + CUDA代替
 
     
 ----
