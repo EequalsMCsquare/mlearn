@@ -1,7 +1,8 @@
 from ..autograd.tensor import Tensor, Dependency, ensure_tensor, zeros, ones
 from ..autograd.parameter import Parameter
-
+from .c_func import c_func
 import numpy as np
+from typing import List
 
 """
 ################### Layers #######################
@@ -71,7 +72,7 @@ def conv_2d(inputs: Tensor, weights: Parameter,
         bias = ones(weights.shape[0], 1, 1)
     else:
         if bias.shape[0] == weights.shape[0] and len(bias.shape) == 1:
-            bias = ensure_tensor(bias).reshape(2, 1, 1)
+            bias = ensure_tensor(bias).reshape(bias.shape[0], 1, 1)
         elif bias.shape == (weights.shape[0], 1, 1):
             bias = ensure_tensor(bias)
         else:
@@ -90,7 +91,6 @@ def conv_2d(inputs: Tensor, weights: Parameter,
     for sample in inputs.data:
         arr = np.lib.stride_tricks.as_strided(
             sample, view_shape, sample.strides*2).reshape(view_shape[1:])
-        print(arr.shape)
         sample_result = []
         for out_dim in weights.data:
             single_channel_conv = []
@@ -111,5 +111,75 @@ def conv_2d(inputs: Tensor, weights: Parameter,
         depends_on = [Dependency(inputs, conv2d_backward)]
     else:
         depends_on = []
+
+    return Tensor(data, requires_grad, depends_on)
+
+
+def c_conv_2d(inputs: Tensor, weights: Parameter,
+              bias: Parameter = None, stride: int = 1, padding: int = 0) -> Tensor:
+    # 内存错位的原因在这里！！！
+    # 因为C只能全部接受同样维度的数组
+    # 所以我reshape了bias 和weights的， 但是忘记修改index了。。。操！
+    """
+    inputs -> (Batch Size, Channel, Rows, Cols)
+    weights -> (out_channel, in_channel, Rows, Cols)
+    bias -> (out_channel, out_x, out_y)
+    公式计算卷积后输出的形状
+    height_out = (height_in - height_w + 2 * padding) // stride + 1
+    width_out = (width_in - width_w + 2 * padding) // stride + 1
+    out -> (Batch_size, out_channel, height_out, width_out)
+    """
+    inputs = ensure_tensor(inputs)
+    weights = ensure_tensor(weights)
+
+    out_x = (inputs.shape[2] - weights.shape[2] + 2 * padding) // stride + 1
+    out_y = (inputs.shape[3] - weights.shape[3] + 2 * padding) // stride + 1
+    
+    # TODO Padding
+    weights = weights.reshape(1, *weights.shape)
+    if bias is None:
+        bias = ones(weights.shape[1], 1, 1)
+    else:
+        if bias.shape[0] == weights.shape[1] and len(bias.shape) == 1:
+            bias = ensure_tensor(bias)
+        else:
+            raise ValueError(
+                f"Bias的形状和输出无法匹配, Expect Shape({weights.shape[1]})\
+                     或 Shape{weights.shape[1], 1, 1}. But receive shape({bias.shape})")
+    bias = bias.reshape(-1, 1, 1, 1, 1)
+    requires_grad = inputs.requires_grad or weights.requires_grad or bias.requires_grad
+
+    view_shape = (1, out_x, out_y,
+                  weights.shape[2], weights.shape[3], weights.shape[4])
+    batch_result = []
+    # TODO MultiProcess
+    for sample in inputs.data:
+        arr = np.lib.stride_tricks.as_strided(
+            sample, view_shape, sample.strides*2).reshape(view_shape[1:])
+        batch_result.append(c_func.sample_conv2d(arr, weights.data, bias.data))
+
+    data = np.array(batch_result)
+    depends_on: List[Dependency] = []
+
+    """
+    二维卷积的反向传播
+
+    """
+   # inputs
+    if inputs.requires_grad:
+        def conv2d_inputsBackward(grad: np.ndarray) -> np.ndarray:
+            return grad
+        depends_on.append(Dependency(inputs, conv2d_inputsBackward))
+
+    # weights:
+    if weights.requires_grad:
+        def conv2d_weightsBackward(grad: np.ndarray) -> np.ndarray:
+            return grad
+        depends_on.append(Dependency(weights, conv2d_weightsBackward))
+    # bias:
+    if bias.requires_grad:
+        def conv2d_biasBackward(grad: np.ndarray) -> np.ndarray:
+            return grad
+        depends_on.append(Dependency(bias, conv2d_biasBackward))
 
     return Tensor(data, requires_grad, depends_on)
