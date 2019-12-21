@@ -1,4 +1,5 @@
 #include "c_func.h"
+#include <time.h>
 
 double dot_sum(double *t1, double *t2, int length)
 {
@@ -16,10 +17,10 @@ double *__sample_conv(double *strided_sample, int shapes[], double *weights, dou
   // 然后取后面三个维度的点乘之和并加以偏执值
   // out -> out_channel, height_out, width_out
 
-  int _temp = shapes[0] * shapes[1];             
+  int _temp = shapes[0] * shapes[1];
   int strides = shapes[2] * shapes[3] * shapes[4];
-  double *result = (double *)malloc(_temp * out_channels * sizeof(double)); 
-  for (int k = 0; k < out_channels; k++) 
+  double *result = (double *)malloc(_temp * out_channels * sizeof(double));
+  for (int k = 0; k < out_channels; k++)
   {
     for (int i = 0; i < _temp; i++)
       // 所有传入的数组都按一维度处理
@@ -27,7 +28,7 @@ double *__sample_conv(double *strided_sample, int shapes[], double *weights, dou
       // Result (8,24,24)
       result[k * _temp + i] = dot_sum(&strided_sample[i * strides],
                                       &weights[k * strides], strides) +
-                              bias[k]; 
+                              bias[k];
   }
   return result;
 }
@@ -37,49 +38,62 @@ double *sample_conv2d(double *inputs, int inputs_a, int inputs_b, int inputs_c, 
 {
   int inputs_shape[] = {inputs_a, inputs_b, inputs_c, inputs_d, inputs_e};
   int out_channel = weights_b;
-  
+
   return __sample_conv(inputs, inputs_shape, weights, bias, out_channel);
 }
 
-void free_ptr(void *ptr){
+void free_ptr(void *ptr)
+{
   free(ptr);
   ptr = NULL;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-  // // used for testing
-  // int length = 24 * 24 * 3 * 5 * 5;
-  // double *inputs = (double *)malloc(length * sizeof(double));
-  // for (int i = 0; i < length; i++)
-  //   inputs[i] = i;
-  // double *weights = (double *)malloc(8 * 3 * 25 * sizeof(double));
-  // for (int i = 0; i < 8 * 3 * 25; i++)
-  //   weights[i] = i;
+  // int coresNum = opm_get_num_procs();
+  // printf("核心数 -> %d", coresNum);
 
-  // double *bias = (double *)malloc(8 * sizeof(double));
-  // for (int i = 0; i < 8; i++)
-  //   bias[i] = 5;
+  time_t start, end;
+  // used for testing
+  int length = 24 * 24 * 3 * 5 * 5;
+  double *inputs = (double *)malloc(length * sizeof(double));
+  for (int i = 0; i < length; i++)
+    inputs[i] = i;
+  double *weights = (double *)malloc(8 * 3 * 25 * sizeof(double));
+  for (int i = 0; i < 8 * 3 * 25; i++)
+    weights[i] = i;
 
-  // int shape[] = {24, 24, 3, 5, 5};
-  // double *result = (double *)malloc(24 * 24 * 8 * sizeof(double));
+  double *bias = (double *)malloc(8 * sizeof(double));
+  for (int i = 0; i < 8; i++)
+    bias[i] = 5;
 
-  // double dot_sumR;
-  // // 卷积结果测试
-  // result = sample_conv2d(inputs, 24, 24, 3, 5, 5,
-  //                        weights, 1, 8, 3, 5, 5, bias, 8, 1, 1, 1, 1);
+  int shape[] = {24, 24, 3, 5, 5};
+  double *result = (double *)malloc(24 * 24 * 8 * sizeof(double));
+  int EPOCH;
+  if (argc == 1)
+    EPOCH = 5000;
+  else
+    EPOCH = atoi(argv[1]);
 
+  printf("测试循环 %d次\n", EPOCH);
+  // 卷积结果测试
+  start = clock();
+  for (int i = 0; i < EPOCH; i++)
+    result = sample_conv2d(inputs, 24, 24, 3, 5, 5,
+                           weights, 1, 8, 3, 5, 5, bias, 8, 1, 1, 1, 1);
+  end = clock();
 
-  // // for (int i = 0; i < 8 * 24 * 24; i++)
-  // // {
-  // //   printf("%f[%d]", result[i], i);
-  // //   printf(((i % 5) != 4) ? "\t" : "\n");
-  // // }
-  // // 结果比python少三个数 
+  printf("Finished in %f Seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
 
-  // free(inputs);
-  // free(weights);
-  // free(bias);
-  // free(result);
+  // for (int i = 0; i < 8 * 24 * 24; i++)
+  // {
+  //   printf("%f[%d]", result[i], i);
+  //   printf(((i % 5) != 4) ? "\t" : "\n");
+  // }
+  // 结果比python少三个数
 
+  free(inputs);
+  free(weights);
+  free(bias);
+  free(result);
 }
