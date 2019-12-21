@@ -3278,9 +3278,30 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_free_ptr(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  void *arg1 = (void *) 0 ;
+  int res1 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "free_ptr" "', argument " "1"" of type '" "void *""'"); 
+  }
+  free_ptr(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { "SWIG_PyInstanceMethod_New", SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { "sample_conv2d", _wrap_sample_conv2d, METH_VARARGS, NULL},
+	 { "free_ptr", _wrap_free_ptr, METH_O, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 

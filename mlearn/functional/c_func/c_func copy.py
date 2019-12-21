@@ -68,4 +68,9 @@ def sample_conv2d(inputs, weights, bias):
     _shape = (weights.shape[1], inputs.shape[0], inputs.shape[1])
     out = _c_func.sample_conv2d(inputs, weights, bias)
     ptr = (c_double * (weights.shape[1]*inputs.shape[0]*inputs.shape[1])).from_address(int(out))
-    return np.ctypeslib.as_array(ptr).reshape(*_shape)
+    arr = np.ctypeslib.as_array(ptr).reshape(*_shape)
+    free_ptr(out)
+    return arr
+
+def free_ptr(ptr):
+    return _c_func.free_ptr(ptr)
