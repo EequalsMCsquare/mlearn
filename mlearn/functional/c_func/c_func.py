@@ -61,16 +61,35 @@ class _SwigNonDynamicMeta(type):
     __setattr__ = _swig_setattr_nondynamic_class_variable(type.__setattr__)
 
 
+
+def new_doublep():
+    return _c_func.new_doublep()
+
+def copy_doublep(value):
+    return _c_func.copy_doublep(value)
+
+def delete_doublep(obj):
+    return _c_func.delete_doublep(obj)
+
+def doublep_assign(obj, value):
+    return _c_func.doublep_assign(obj, value)
+
+def doublep_value(obj):
+    return _c_func.doublep_value(obj)
+
 import numpy as np
 from ctypes import c_double
 
 def sample_conv2d(inputs, weights, bias):
     _shape = (weights.shape[1], inputs.shape[0], inputs.shape[1])
-    out = _c_func.sample_conv2d(inputs, weights, bias)
-    ptr = (c_double * (weights.shape[1]*inputs.shape[0]*inputs.shape[1])).from_address(int(out))
-    arr = np.ctypeslib.as_array(ptr).reshape(*_shape)
-    free_ptr(out)
+    ptr = _c_func.sample_conv2d(inputs, weights, bias)
+    out = (c_double * (inputs.shape[1]*inputs.shape[0]*weights.shape[1])).from_address(int(ptr))
+    arr = np.ctypeslib.as_array(out).reshape(*_shape)
     return arr
 
-def free_ptr(ptr):
-    return _c_func.free_ptr(ptr)
+def matmulAdd(inputs, w, b):
+    _shape = (inputs.shape[0], w.shape[-1])
+    ptr = _c_func.matmulAdd(inputs, w.T, b)
+    out = (c_double * (inputs.shape[0]*w.shape[-1])).from_address(int(ptr))
+    arr = np.ctypeslib.as_array(out).reshape(*_shape)
+    return arr
