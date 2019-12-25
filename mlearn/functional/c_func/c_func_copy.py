@@ -61,6 +61,21 @@ class _SwigNonDynamicMeta(type):
     __setattr__ = _swig_setattr_nondynamic_class_variable(type.__setattr__)
 
 
+def new_doublep():
+    return _c_func.new_doublep()
+
+def copy_doublep(value):
+    return _c_func.copy_doublep(value)
+
+def delete_doublep(obj):
+    return _c_func.delete_doublep(obj)
+
+def doublep_assign(obj, value):
+    return _c_func.doublep_assign(obj, value)
+
+def doublep_value(obj):
+    return _c_func.doublep_value(obj)
+
 import numpy as np
 from ctypes import c_double
 

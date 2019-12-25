@@ -61,7 +61,6 @@ class _SwigNonDynamicMeta(type):
     __setattr__ = _swig_setattr_nondynamic_class_variable(type.__setattr__)
 
 
-
 def new_doublep():
     return _c_func.new_doublep()
 
