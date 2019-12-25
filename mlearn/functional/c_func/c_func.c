@@ -1,6 +1,5 @@
 #include "c_func.h"
 #include <time.h>
-// #include <omp.h>
 
 // 卷积神经网络
 double
@@ -9,11 +8,13 @@ dot_sum(double * t1, double * t2, int length)
     // 点乘
     // 这里不存在内存泄漏的问题
     double result = 0;
-
-    for (int i = 0; i < length; i++)
+    int i;
+    for (i = 0; i < length; i++) {
         result += t1[i] * t2[i];
+    }
     return result;
 }
+
 
 double *
 __sample_conv(double * strided_sample, int shapes[], double * weights, double * bias, int out_channels)
@@ -23,18 +24,19 @@ __sample_conv(double * strided_sample, int shapes[], double * weights, double * 
     // 然后取后面三个维度的点乘之和并加以偏执值
     // out -> out_channel, height_out, width_out
 
-    int _temp       = shapes[0] * shapes[1];
-    int strides     = shapes[2] * shapes[3] * shapes[4];
+    const unsigned int _temp       = shapes[0] * shapes[1];
+    const unsigned int strides     = shapes[2] * shapes[3] * shapes[4];
     double * result = (double *) malloc(_temp * out_channels * sizeof(double));
-
+    #pragma omp parallel for
     for (int k = 0; k < out_channels; k++) {
+        unsigned int idx_1 = k*_temp;
+        unsigned int idx_2 = k*strides;
         for (int i = 0; i < _temp; i++)
             // 所有传入的数组都按一维度处理
             // 比如 24,24,3,5,5， 那么卷积框大小就是3,5,5
             // Result (8,24,24)
-            result[k * _temp + i] = dot_sum(&strided_sample[i * strides],
-                &weights[k * strides], strides)
-              + bias[k];
+            result[idx_1 + i] = dot_sum(&strided_sample[i * strides],
+                &weights[idx_2], strides) + bias[k];
     }
     return result;
 }
@@ -62,7 +64,6 @@ matmulAdd(double * inputs, int inputs_row, int inputs_col, double * w, int w_row
     double row_sum;
     int index       = 0;
     double * result = (double *) malloc(sizeof(double) * inputs_row * w_row);
-
     for (i = 0; i < inputs_row; i++) {
         for (k = 0; k < w_row; k++) {
             row_sum = 0;
@@ -146,6 +147,6 @@ dense_test()
 int
 main(int argc, char * argv[])
 {
-    dense_test();
-    // conv2d_test(argc, argv);
+    // dense_test();
+    conv2d_test(argc, argv);
 }
