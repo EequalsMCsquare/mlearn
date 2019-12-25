@@ -1,5 +1,5 @@
 # MLearn
-> A Based on numpy (CPU) & cupy(CUDA) simple machine learning pakage
+> A Based on numpy (CPU) ~~& cupy(CUDA)~~ simple machine learning pakage
 
 ## Requirements
 > Numpy  
