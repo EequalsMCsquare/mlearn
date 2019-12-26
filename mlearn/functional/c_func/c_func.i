@@ -18,6 +18,9 @@
 (double *bias, int bias_a, int bias_b, int bias_c, int bias_d, int bias_e)
 };
 
+%apply (double **ARGOUTVIEWM_ARRAY3, int *DIM1, int *DIM2, int *DIM3) {
+    (double **arr_out, int *out_dim1, int *out_dim2, int *out_dim3)}
+
 %apply (double* IN_ARRAY2, int DIM1, int DIM2) {
     (double *inputs, int inputs_row, int inputs_col),
     (double *w, int w_row, int w_col),

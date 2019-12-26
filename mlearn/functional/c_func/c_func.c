@@ -26,7 +26,7 @@ __sample_conv(double * strided_sample, int shapes[], double * weights, double * 
 
     const unsigned int _temp       = shapes[0] * shapes[1];
     const unsigned int strides     = shapes[2] * shapes[3] * shapes[4];
-    double * result = (double *) malloc(_temp * out_channels * sizeof(double));
+    double *result = (double *) malloc(_temp * out_channels * sizeof(double));
     #pragma omp parallel for
     for (int k = 0; k < out_channels; k++) {
         unsigned int idx_1 = k*_temp;
@@ -51,6 +51,7 @@ sample_conv2d(double * inputs, int inputs_a, int inputs_b, int inputs_c, int inp
 
     return __sample_conv(inputs, inputs_shape, weights, bias, out_channel);
 }
+
 
 // 全连接神经网络
 double *
