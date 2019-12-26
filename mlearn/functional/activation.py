@@ -3,15 +3,12 @@ from ..autograd.tensor import Tensor, Dependency, ensure_tensor
 import numpy as np
 
 
-
-
 """
 ###################### Activation Functions ###################
 """
 
 
 def tanh(tensor: Tensor) -> Tensor:
-    assert isinstance(tensor, Tensor), "只能接受Tensor对象"
     data = np.tanh(tensor.data)
     requires_grad = tensor.requires_grad
 
@@ -29,7 +26,7 @@ def tanh(tensor: Tensor) -> Tensor:
 def relu(tensor: Tensor) -> Tensor:
     tensor = ensure_tensor(tensor)
     data = np.where(tensor.data > 0, tensor.data, 0)
-    requires_grad = tensor.requires_grad
+    requires_grad = tensor.requires_grady
     if requires_grad:
         def grad_fn(grad: np.ndarray) -> np.ndarray:
             return grad * np.where(data <= 0, 0, 1)
@@ -70,7 +67,6 @@ def sigmoid(tensor: Tensor) -> Tensor:
     return Tensor(data, requires_grad, depends_on)
 
 
-
 def softmax(tensor: Tensor, dim: int = 1) -> Tensor:
     tensor = ensure_tensor(tensor)
 
@@ -93,6 +89,7 @@ def softmax(tensor: Tensor, dim: int = 1) -> Tensor:
 
     if tensor.requires_grad:
         raise NotImplementedError("梯度！！！")
+
         def grad_fn(grad: np.ndarray) -> np.ndarray:
             return grad
         depends_on = [Dependency(tensor, grad_fn)]

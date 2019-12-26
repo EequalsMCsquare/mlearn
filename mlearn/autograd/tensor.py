@@ -1,6 +1,8 @@
 from typing import List, NamedTuple, Callable, Optional, Union
 import numpy as np
 
+# No scientific notation
+np.set_printoptions(suppress=True)
 
 class Dependency(NamedTuple):
     tensor: 'Tensor'
@@ -37,6 +39,7 @@ class Tensor:
         self.depends_on = depends_on or []
         self.shape = self.data.shape
         self.grad: Optional['Tensor'] = None
+        self.ndim = self.data.ndim
 
         if self.requires_grad:
             self.zero_grad()
@@ -115,8 +118,10 @@ class Tensor:
         if requires_grad:
             def reshapeBackward(grad: np.ndarray) -> np.ndarray:
                 return grad.reshape(*self.grad.shape)
-        depends_on = [Dependency(self, reshapeBackward)]
-
+            depends_on = [Dependency(self, reshapeBackward)]
+        else:
+            depends_on = []
+            
         return Tensor(data,
                       requires_grad,
                       depends_on)
@@ -128,7 +133,11 @@ class Tensor:
 
     def __repr__(self) -> str:
         if self.requires_grad:
-            return f"Tensor({np.array2string(self.data,prefix='Tensor(',separator=', ', sign='-',floatmode='maxprec_equal',precision=4)})"
+            if len(self.depends_on) != 0:
+                return f"Tensor({np.array2string(self.data,prefix='Tensor(',separator=', ', sign='-',floatmode='maxprec_equal',precision=4)}, grad_fn=<{self.depends_on[0].grad_fn.__name__}>)"
+            else:
+                return f"Tensor({np.array2string(self.data,prefix='Tensor(',separator=', ', sign='-',floatmode='maxprec_equal',precision=4)}, requires_grad={self.requires_grad})"
+                
         else:
             return f"Tensor({np.array2string(self.data,prefix='Tensor(', separator=', ', sign='-',floatmode='maxprec_equal',precision=4)})"
 
