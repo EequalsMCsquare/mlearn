@@ -6,7 +6,7 @@
 %}
 
 
-%include "/home/reco/.local/include/numpy.i"
+%include "../../../numpy.i"
 %include "cpointer.i"
 %init %{
   import_array()
