@@ -3,6 +3,7 @@ import numpy as np
 
 # No scientific notation
 np.set_printoptions(suppress=True)
+np.set_printoptions(linewidth=80)
 
 class Dependency(NamedTuple):
     tensor: 'Tensor'
@@ -121,7 +122,7 @@ class Tensor:
             depends_on = [Dependency(self, reshapeBackward)]
         else:
             depends_on = []
-            
+
         return Tensor(data,
                       requires_grad,
                       depends_on)
@@ -137,7 +138,7 @@ class Tensor:
                 return f"Tensor({np.array2string(self.data,prefix='Tensor(',separator=', ', sign='-',floatmode='maxprec_equal',precision=4)}, grad_fn=<{self.depends_on[0].grad_fn.__name__}>)"
             else:
                 return f"Tensor({np.array2string(self.data,prefix='Tensor(',separator=', ', sign='-',floatmode='maxprec_equal',precision=4)}, requires_grad={self.requires_grad})"
-                
+
         else:
             return f"Tensor({np.array2string(self.data,prefix='Tensor(', separator=', ', sign='-',floatmode='maxprec_equal',precision=4)})"
 
@@ -202,7 +203,7 @@ class Tensor:
 
 def _tensor_sum(t: Tensor) -> Tensor:
     """
-    Take a tensor and returns the 0-tensor 
+    Take a tensor and returns the 0-tensor
     that's the sum of all its elements.
     """
     data = t.data.sum()
