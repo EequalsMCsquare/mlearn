@@ -1,2 +1,3 @@
 from .module import Module
-from .layers import *
+from .conv import Conv2d
+from .linear import Dense

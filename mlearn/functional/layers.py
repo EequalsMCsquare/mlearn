@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 
 from ..autograd.parameter import Parameter
-from ..autograd.tensor import Dependency, Tensor, ensure_tensor, ones, zeros
+from ..autograd.tensor import Dependency, Tensor, ensure_tensor, ones
 from .c_func import c_func
 
 
@@ -15,7 +15,7 @@ from .c_func import c_func
 def dense(inputs: Tensor, weights: Tensor, bias: Tensor) -> Tensor:
     for x in(inputs, weights, bias):
         if not isinstance(x, Tensor):
-            raise TypeError("传播对象必须是一个Tensor!")
+            raise TypeError(f"传播对象必须是一个Tensor! 你給我個{type(x)}搞咩?")
 
     return inputs @ weights + bias
 
@@ -57,11 +57,6 @@ def flatten(inputs: Tensor):
 
 def conv_2d(inputs: Tensor, weights: Parameter,
               bias: Parameter = None, stride: int = 1, padding: int = 0) -> Tensor:
-    # 内存错位的原因在这里！！！
-    # 因为C只能全部接受同样维度的数组
-    # 所以我reshape了bias 和weights的， 但是忘记修改index了。。。操！
-    # 奇怪 结果有可能是正确的但是， 有一定几率前4位的指针有问题
-
     """
     inputs -> (Batch Size, Channel, Rows, Cols)
     weights -> (out_channel, in_channel, Rows, Cols)
@@ -106,7 +101,7 @@ def conv_2d(inputs: Tensor, weights: Parameter,
     depends_on: List[Dependency] = []
 
     """
-    二维卷积的反向传播
+        TODO 二维卷积的反向传播
     """
    # inputs
     if inputs.requires_grad:

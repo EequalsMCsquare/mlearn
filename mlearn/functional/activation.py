@@ -26,7 +26,7 @@ def tanh(tensor: Tensor) -> Tensor:
 def relu(tensor: Tensor) -> Tensor:
     tensor = ensure_tensor(tensor)
     data = np.where(tensor.data > 0, tensor.data, 0)
-    requires_grad = tensor.requires_grady
+    requires_grad = tensor.requires_grad
     if requires_grad:
         def grad_fn(grad: np.ndarray) -> np.ndarray:
             return grad * np.where(data <= 0, 0, 1)
