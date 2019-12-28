@@ -1,15 +1,17 @@
-from ..autograd.parameter import Parameter
+from ..autograd.parameter import Parameter, param_init
 from ..functional import layers as F
 from .module import Module
 from ..autograd.tensor import Tensor
+
 
 class Dense(Module):
     def __init__(self, input_shape: int, output_shape: int) -> Tensor:
         super(Dense, self).__init__()
         self.input_shape = input_shape
         self.output_shape = output_shape
-        self.weights = Parameter(input_shape, output_shape)
-        self.bias = Parameter(output_shape)
+        self.weights = Parameter(input_shape, output_shape) * \
+            param_init.xavier_init(self.input_shape, self.output_shape)
+        self.bias = Parameter(output_shape, bias=True)
 
     def forward(self, inputs):
         assert (len(inputs.shape) == 2), "必须传入(batch_size,features)"
