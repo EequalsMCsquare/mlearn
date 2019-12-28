@@ -8,7 +8,7 @@
 
 ----
 ## Example
-[使用mlearn訓練FashionMNIST](./mlearn_test.ipynb)
+- [使用mlearn訓練FashionMNIST](./mlearn_test.ipynb)
 
 ----
 ### Features
