@@ -2,6 +2,7 @@
 > A Based on numpy (CPU) ~~& cupy(CUDA)~~ simple machine learning pakage
 
 ## Requirements
+> 二維卷積是用C實現的，不同系統需要重現編譯 ( mlearn/functional/c_func/ )  
 > Numpy  
 > ~~Cupy (only if train on CUDA)~~ (Has been removed) 要是有时间的话就用numpy + C + CUDA代替
 
