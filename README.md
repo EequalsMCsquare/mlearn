@@ -6,7 +6,9 @@
 > Numpy  
 > ~~Cupy (only if train on CUDA)~~ (Has been removed) 要是有时间的话就用numpy + C + CUDA代替
 
-    
+### Example
+[使用mlearn訓練FashionMNIST](./mlearn_test.ipynb)
+
 ----
 ### Features
 1. 基于numpy的矩阵运算
