@@ -1,9 +1,11 @@
 import inspect
 from typing import Iterator
 from collections import OrderedDict
+import pickle
 
 from ..autograd.tensor import Tensor
 from ..autograd.parameter import Parameter
+from ..exception import ShapeError, LengthError
 
 
 class Module:
@@ -41,13 +43,6 @@ class Module:
             for k, v in self._modules.items():
                 if isinstance(v, Module):
                     yield from v._parameters.values()
-
-    # def parameters(self) -> Iterator[Parameter]:
-    #     for name, value in inspect.getmembers(self):
-    #         if isinstance(value, Parameter):
-    #             yield value
-    #         elif isinstance(value, Module):
-    #             yield from value.parameters()
 
     def __setattr__(self, name, value):
         if not isinstance(name, str):
@@ -89,4 +84,58 @@ class Module:
         """
         读取训练好的模型的Weights n' Bias
         """
-        raise NotImplementedError("读取训练好的模型的Weights n' Bias")
+        if len(self._parameters) == 0 and len(self._modules) == 0:
+            raise RuntimeError("既没有_modules 也没有 _parameters你load到哪？哈批.")
+        with open(PATH, 'rb') as FILE:
+            param = pickle.load(FILE)
+
+        if len(self._modules) == 0:
+            """
+            1. 如果 self._modules为空的话就说明这是一个曾
+            2. 迭代判定是否参数形状匹配
+            3. 如果参数形状匹配就直接赋值给self._parameters
+            """
+            for k, v in self._parameters.items():
+                if v.shape != param[k].shape:
+                    raise ValueError(f"参数 <{k}> 形状不匹配,保存的模型形<{k}>状是 [{param[k].shape}], 但是当前模型的<{k}>是{v.shape}")
+            self._parameters[k] = param[k]
+            print("层参数加载完毕")
+
+
+        elif len(self._parameters) == 0:
+            """
+                1. 如果 self._parameters 为空的话就说明这是一个神经网络， 里面储存了layers
+                2. 判定层数是否相同
+                3. 如果层数相同,就开始判定是否参数形状相同
+                4. 如果这一层参数相同就直接对层._parameters进行赋值
+            """
+            if len(self._modules) != len(param):
+                raise LengthError("层数无法匹配", len(self._modules), len(param))
+            for k, v in self._modules.items():
+                for layer_k, layer_v in v._parameters.items():
+                    if param[k][layer_k].shape != layer_v.shape:
+                        raise ShapeError(f"{k}层的{layer_k}形状不匹配", layer_v.shape, param[k][layer_k].shape)
+                self._modules[k]._parameters = param[k]
+            print("网络参数加载完毕")
+            # 如果迭代完毕后也没有报错的话,就直接
+
+
+
+
+
+
+
+    def save_wb(self, PATH:str) -> None:
+        if len(self._parameters) == 0 and len(self._modules) == 0:
+            raise RuntimeError("既没有_modules 也没有 _parameters你save个啥？哈批.")
+        if len(self._parameters) == 0:
+            module_state_dict = {}
+            for k, v in self._modules.items():
+                module_state_dict[k] = v._parameters
+            with open(PATH,'wb') as FILE:
+                pickle.dump(module_state_dict,FILE,protocol=pickle.HIGHEST_PROTOCOL)
+            print("参数保存成功")
+        elif len(self._modules) == 0:
+            with open(PATH, 'wb') as FILE:
+                pickle.dump(self._parameters,FILE,protocal=pickle.HIGHEST_PROTOCOL)
+            print("参数保存成功")

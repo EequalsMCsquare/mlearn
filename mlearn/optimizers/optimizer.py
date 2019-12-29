@@ -1,7 +1,9 @@
 from ..layers import Module
 import numpy as np
-from ..autograd import Tensor
-from ..autograd import tensor
+from ..autograd import Tensor, zeros, zeros_like
+from ..autograd import Parameter
+from typing import Generator
+
 
 def tensor2array(var):
     assert isinstance(var,Tensor),"必须传入一个Tensor"
@@ -9,16 +11,23 @@ def tensor2array(var):
     _tmp = []
 
 class Optimizer:
-    def __init__(self):
-        pass
-    
-
-class SGD(Optimizer):
-    def __init__(self, module: Module, lr: float = 1e-3) -> None:
+    def __init__(self, lr:float, module:Module):
         self.lr = lr
         self.module = module
+        self.iteration = 0
 
+    def step(self):
+        """
+            更新參數
+            optimizer.step()
+        """
+        raise NotImplementedError("Overrive this method before calling!")
+
+class SGD(Optimizer):
+    def __init__(self, module:Module, lr: float = 1e-3) -> None:
+        super(SGD,self).__init__(lr, module)
     def step(self) -> None:
+        self.iteration += 1
         for parameter in self.module.parameters():
             v = parameter.grad
             parameter -= v * self.lr
@@ -30,7 +39,7 @@ class RMSProp(Optimizer):
         """
         Module -> 神经网络模型
         lr -> 学习率
-        alpha -> 
+        alpha ->
         """
         self.module = module
         self.lr = lr
@@ -38,7 +47,7 @@ class RMSProp(Optimizer):
         self.eps = eps
         self.v = []
         for parameter in self.module.parameters():
-            self.v.append(tensor.zeros_like(parameter.data))
+            self.v.append(zeros_like(parameter.data))
 
     def step(self):
         v_iter = iter(self.v)
@@ -47,8 +56,8 @@ class RMSProp(Optimizer):
             v = v + (1-self.alpha) * parameter.grad**2
             eta = self.lr / (np.sqrt(v.data) + self.eps)
             parameter -=  parameter.grad * eta
-           
-        
+
+
 
 class Momentum(Optimizer):
     def __init__(self, module: Module, lr: float = 1e-3, momentum: float = 0.9):
@@ -57,7 +66,7 @@ class Momentum(Optimizer):
         self.momentum = momentum
         self.v = []
         for parameter in self.module.parameters():
-            self.v.append(tensor.zeros(*parameter.data.shape))
+            self.v.append(zeros(*parameter.data.shape))
 
     def step(self):
         v_iter = iter(self.v)

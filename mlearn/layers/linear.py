@@ -9,8 +9,7 @@ class Dense(Module):
         super(Dense, self).__init__()
         self.input_shape = input_shape
         self.output_shape = output_shape
-        self.weights = Parameter(input_shape, output_shape) * \
-            param_init.xavier_init(self.input_shape, self.output_shape)
+        self.weights = Parameter(input_shape, output_shape,init=param_init.xavier_init(self.input_shape, self.output_shape))
         self.bias = Parameter(output_shape, bias=True)
 
     def forward(self, inputs):
