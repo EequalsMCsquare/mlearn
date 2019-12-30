@@ -1,12 +1,13 @@
 import numpy as np
 from ..autograd import tensor
+from typing import Tuple
 
 
 def one_hot(labels: np.ndarray) -> np.ndarray:
     """
     把以index为label的转换为one-hot格式
-    参数: labels
-    return一个ndArray
+    argv: <np.ndarray> labels
+    return: <np.ndarray> one-hot的labels
     """
     if labels.ndim != 1:
         raise ValueError("Inputs dimension has to be 1")
@@ -21,10 +22,10 @@ def one_hot(labels: np.ndarray) -> np.ndarray:
 
 
 # 数据标准化
-def normalize_MinMax(features, labels):
+def normalize_MinMax(features:np.ndarray, labels:np.ndarray) Tuple:
     """
-    只接受一个参数-->ndarray
-    返回一个标准化后的数组
+    argv: features, labels
+    return: <Tuple> (规一化后的features, labels)
     """
     return (features - np.min(features)) / (np.max(features) - np.min(features)), labels
 

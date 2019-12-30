@@ -117,15 +117,9 @@ class Module:
                         raise ShapeError(f"{k}层的{layer_k}形状不匹配", layer_v.shape, param[k][layer_k].shape)
                 self._modules[k]._parameters = param[k]
             print("网络参数加载完毕")
-            # 如果迭代完毕后也没有报错的话,就直接
 
 
-
-
-
-
-
-    def save_wb(self, PATH:str) -> None:
+    def save_wb(self, PATH:str, desc:str) -> None:
         if len(self._parameters) == 0 and len(self._modules) == 0:
             raise RuntimeError("既没有_modules 也没有 _parameters你save个啥？哈批.")
         if len(self._parameters) == 0:
@@ -134,8 +128,8 @@ class Module:
                 module_state_dict[k] = v._parameters
             with open(PATH,'wb') as FILE:
                 pickle.dump(module_state_dict,FILE,protocol=pickle.HIGHEST_PROTOCOL)
-            print("参数保存成功")
+            print("网络参数保存成功")
         elif len(self._modules) == 0:
             with open(PATH, 'wb') as FILE:
                 pickle.dump(self._parameters,FILE,protocal=pickle.HIGHEST_PROTOCOL)
-            print("参数保存成功")
+            print("层参数保存成功")
