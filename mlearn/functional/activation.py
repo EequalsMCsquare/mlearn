@@ -36,14 +36,14 @@ def relu(tensor: Tensor) -> Tensor:
     return Tensor(data, requires_grad, depends_on)
 
 
-def leaky_relu(tensor: Tensor) -> Tensor:
+def leaky_relu(tensor: Tensor, alpha:float=0.01) -> Tensor:
     tensor = ensure_tensor(tensor)
 
-    data = np.where(tensor.data > 0, tensor.data, 0.01 * tensor.data)
+    data = np.where(tensor.data > 0, tensor.data, alpha * tensor.data)
     requires_grad = tensor.requires_grad
     if requires_grad:
         def grad_fn(grad: np.ndarray) -> np.ndarray:
-            return grad * np.where(data <= 0, 0.01, 1)
+            return grad * np.where(tensor.data < 0, alpha, 1)
         depends_on = [Dependency(tensor, grad_fn)]
     else:
         depends_on = []
