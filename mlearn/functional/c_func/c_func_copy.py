@@ -78,12 +78,15 @@ def doublep_value(obj):
 
 import numpy as np
 from ctypes import c_double
+import copy
 
 def sample_conv2d(inputs, weights, bias):
     _shape = (weights.shape[1], inputs.shape[0], inputs.shape[1])
     ptr = _c_func.sample_conv2d(inputs, weights, bias)
     out = (c_double * (inputs.shape[1]*inputs.shape[0]*weights.shape[1])).from_address(int(ptr))
-    arr = np.ctypeslib.as_array(out).reshape(*_shape)
+    temp = np.ctypeslib.as_array(out).reshape(*_shape)
+    arr = np.copy(temp)
+    delete_doublep(ptr)
     return arr
 
 def matmulAdd(inputs, w, b):
