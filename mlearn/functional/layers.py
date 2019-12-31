@@ -56,7 +56,7 @@ def flatten(inputs: Tensor):
 
 
 def conv_2d(inputs: Tensor, weights: Parameter,
-              bias: Parameter = None, stride: int = 1, padding: int = 0) -> Tensor:
+              bias: Parameter = None, stride: int = 1, padding: int = (0, 0)) -> Tensor:
     """
     inputs -> (Batch Size, Channel, Rows, Cols)
     weights -> (out_channel, in_channel, Rows, Cols)
@@ -80,8 +80,8 @@ def conv_2d(inputs: Tensor, weights: Parameter,
             raise ValueError(
                 f"Bias的形状和输出无法匹配, Expect Shape({weights.shape[0]}) 或 Shape{weights.shape[0], 1, 1}. But receive shape({bias.shape})")
 
-    out_x = (inputs.shape[2] - weights.shape[2] + 2 * padding) // stride + 1
-    out_y = (inputs.shape[3] - weights.shape[3] + 2 * padding) // stride + 1
+    out_x = (inputs.shape[2] - weights.shape[2] + 2 * padding[0]) // stride + 1
+    out_y = (inputs.shape[3] - weights.shape[3] + 2 * padding[1]) // stride + 1
 
     # TODO Padding
     weights = weights.reshape(1, *weights.shape)
@@ -96,7 +96,6 @@ def conv_2d(inputs: Tensor, weights: Parameter,
         arr = np.lib.stride_tricks.as_strided(
             sample, view_shape, sample.strides*2).reshape(view_shape[1:])
         batch_result.append(c_func.sample_conv2d(arr, weights.data, bias.data))
-
     data = np.array(batch_result)
     depends_on: List[Dependency] = []
 

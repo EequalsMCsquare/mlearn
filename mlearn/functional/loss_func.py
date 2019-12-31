@@ -38,7 +38,7 @@ def cross_entropy(predicts: Tensor, targets: Tensor) -> Tensor:
             _sum = np.sum(np.exp(x))
             return np.exp(x) / _sum
         data = []
-        for x in predicts:
+        for x in tensor:
             data.append(_stable_softmax(x.data))
         data = np.array(data)
         return Tensor(data, tensor.requires_grad,

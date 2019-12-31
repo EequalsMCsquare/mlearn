@@ -9,9 +9,7 @@ class Dependency(NamedTuple):
     tensor: 'Tensor'
     grad_fn: Callable[[np.ndarray], np.ndarray]
 
-
 Arrayable = Union[float, list, np.ndarray]
-
 
 def ensure_array(arrayable: Arrayable) -> np.ndarray:
     if isinstance(arrayable, np.ndarray):
@@ -19,9 +17,7 @@ def ensure_array(arrayable: Arrayable) -> np.ndarray:
     else:
         return np.array(arrayable)
 
-
 Tensorable = Union['Tensor', float, np.ndarray]
-
 
 def ensure_tensor(tensorable: Tensorable) -> 'Tensor':
     if isinstance(tensorable, Tensor):

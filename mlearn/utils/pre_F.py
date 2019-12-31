@@ -22,7 +22,7 @@ def one_hot(labels: np.ndarray) -> np.ndarray:
 
 
 # 数据标准化
-def normalize_MinMax(features:np.ndarray, labels:np.ndarray) Tuple:
+def normalize_MinMax(features:np.ndarray, labels:np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
     argv: features, labels
     return: <Tuple> (规一化后的features, labels)

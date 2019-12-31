@@ -119,7 +119,7 @@ class Module:
             print("网络参数加载完毕")
 
 
-    def save_wb(self, PATH:str, desc:str) -> None:
+    def save_wb(self, PATH:str, desc:str=None) -> None:
         if len(self._parameters) == 0 and len(self._modules) == 0:
             raise RuntimeError("既没有_modules 也没有 _parameters你save个啥？哈批.")
         if len(self._parameters) == 0:
