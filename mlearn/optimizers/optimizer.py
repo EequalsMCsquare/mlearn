@@ -23,10 +23,10 @@ class Optimizer:
         """
         raise NotImplementedError("Overrive this method before calling!")
 
-class BGD(Optimizer):
+class SGD(Optimizer):
     """
-        批梯度下降法
-        Batch Gradient Descent
+        随机梯度下降
+        Stochastic Gradient Descent
     """
     def __init__(self, module:Module, lr: float = 1e-3) -> None:
         super(BGD,self).__init__(lr, module)
@@ -35,15 +35,6 @@ class BGD(Optimizer):
         for parameter in self.module.parameters():
             v = parameter.grad
             parameter -= v * self.lr
-
-class SGD(Optimizer):
-    """
-        随机梯度下降
-        Stochastic Gradient Descent
-    """
-    def __init__(self, lr, module):
-        super(SGD,self).__init__(lr, module)
-        raise NotImplementedError("Not Implement!")
 
 
 class Momentum(Optimizer):
