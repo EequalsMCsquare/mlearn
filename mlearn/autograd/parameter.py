@@ -23,7 +23,7 @@ class param_init:
             - https://medium.com/@prateekvishnu/xavier-and-he-normal-he-et-al-initialization-8e3d7a087528
     """
     @staticmethod
-    def xavier_init(in_num:int, out_num:int):
+    def xavier_init(in_num:int, out_num:int=None):
         r"""
             in_num  -> Weights_in  個數
             out_num -> Weights_out 個數
@@ -32,10 +32,10 @@ class param_init:
         """
         if not isinstance(in_num, int):
             raise ValueError(f"in_num必須是一個整數， 而不是 {type(in_num)}")
-        if not isinstance(out_num, int):
-            raise ValueError(f"out_num必須是一個整數， 而不是 {type(in_num)}")
+        # if not isinstance(out_num, int):
+        #     raise ValueError(f"out_num必須是一個整數， 而不是 {type(in_num)}")
 
-        return np.sqrt(2./(in_num + out_num))
+        return 1./np.sqrt(in_num)
 
     @staticmethod
     def He_init(in_num:int):
@@ -46,4 +46,4 @@ class param_init:
         """
         if not isinstance(in_num, int):
             raise ValueError(f"in_num必須是一個整數， 而不是 {type(in_num)}")
-        return np.sqrt(1./in_num)
+        return 1./np.sqrt(in_num/2.)
