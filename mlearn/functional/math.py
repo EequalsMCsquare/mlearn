@@ -39,6 +39,19 @@ def abs(tensor: Tensor) -> Tensor:
 
     return Tensor(data, requires_grad, depends_on)
 
+def std(tensor:'Tensor') -> 'Tensor':
+    tensor = ensure_tensor(tensor)
+    data = np.std(tensor.data,ddof=1)
+    requires_grad = tensor.requires_grad
+    if requires_grad:
+        raise NotImplementedError("NotImplemented")
+        def std_backward(grad: np.ndarray) -> np.ndarray:
+            return grad *  1
+        depends_on = [Dependency(tensor,std_backward)]
+    else:
+        depends_on = []
+    return Tensor(data, requires_grad, depends_on)
+
 
 def round(tensor: Tensor) -> Tensor:
     tensor = ensure_tensor(tensor)
@@ -120,4 +133,3 @@ def sqrt(tensor: Tensor) -> Tensor:
     else:
         depends_on = []
     return Tensor(data,requires_grad,depends_on)
-
