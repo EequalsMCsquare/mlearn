@@ -1,6 +1,7 @@
 from typing import List
 
 import numpy as np
+from time import time
 
 from ..autograd.parameter import Parameter
 from ..autograd.tensor import Dependency, Tensor, ensure_tensor, ones
@@ -56,7 +57,7 @@ def flatten(inputs: Tensor):
 
 
 def conv_2d(inputs: Tensor, weights: Parameter,
-              bias: Parameter = None, stride: int = 1, padding: int = (0, 0)) -> Tensor:
+              bias: Parameter = None, stride = 1, padding = (0, 0)) -> Tensor:
     """
     inputs -> (Batch Size, Channel, Rows, Cols)
     weights -> (out_channel, in_channel, Rows, Cols)
@@ -66,10 +67,25 @@ def conv_2d(inputs: Tensor, weights: Parameter,
     width_out = (width_in - width_w + 2 * padding) // stride + 1
     out -> (Batch_size, out_channel, height_out, width_out)
     """
-    inputs = ensure_tensor(inputs)
-    weights = ensure_tensor(weights)
     if weights.shape[1] != inputs.shape[1]:
         raise ValueError(f"Weights的in_channel和inputs的不匹配, inputs -> {inputs.shape}, weights -> {weights.shape}")
+
+    # Format Argv
+    inputs = ensure_tensor(inputs)
+    weights = ensure_tensor(weights)
+    origin_shape = inputs.shape
+    if not isinstance(stride, tuple):
+        stride = (stride,)*2
+    if not isinstance(padding, tuple):
+        padding = (padding,)*2
+
+    # 上下pad
+    pad_row = (padding[0],)*2
+    # 左右pad
+    pad_col = (padding[1],)*2
+    # Padding
+
+    inputs.data = np.pad(inputs.data,[(0,0),(0,0),pad_row,pad_col])
 
     if bias is None:
         bias = ones(weights.shape[1], 1, 1)
@@ -80,33 +96,32 @@ def conv_2d(inputs: Tensor, weights: Parameter,
             raise ValueError(
                 f"Bias的形状和输出无法匹配, Expect Shape({weights.shape[0]}) 或 Shape{weights.shape[0], 1, 1}. But receive shape({bias.shape})")
 
-    out_x = (inputs.shape[2] - weights.shape[2] + 2 * padding[0]) // stride + 1
-    out_y = (inputs.shape[3] - weights.shape[3] + 2 * padding[1]) // stride + 1
+    out_x = (origin_shape[2] - weights.shape[2] + 2 * padding[0]) + 1
+    out_y = (origin_shape[3] - weights.shape[3] + 2 * padding[1]) + 1
 
     # TODO Padding
     weights = weights.reshape(1, *weights.shape)
+    # weights -> shape(1, out, in, x, y)
     bias = bias.reshape(-1, 1, 1, 1, 1)
     requires_grad = inputs.requires_grad or weights.requires_grad or bias.requires_grad
 
     view_shape = (1, out_x, out_y,
                   weights.shape[2], weights.shape[3], weights.shape[4])
+    _strides = inputs[0].data.strides*2
     batch_result = []
     # TODO MultiProcess
     for sample in inputs.data:
         arr = np.lib.stride_tricks.as_strided(
-            sample, view_shape, sample.strides*2).reshape(view_shape[1:])
-        batch_result.append(c_func.sample_conv2d(arr, weights.data, bias.data))
+            sample, view_shape, _strides)[0]
+        batch_result.append(
+            c_func.sample_conv2d(arr[0:out_x:stride[0],0:out_y:stride[1]],
+                weights.data, bias.data))
     data = np.array(batch_result)
     depends_on: List[Dependency] = []
 
     """
         TODO 二维卷积的反向传播
     """
-   # inputs
-    if inputs.requires_grad:
-        def conv2d_inputsBackward(grad: np.ndarray) -> np.ndarray:
-            return grad
-        depends_on.append(Dependency(inputs, conv2d_inputsBackward))
 
     # weights:
     if weights.requires_grad:
