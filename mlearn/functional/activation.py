@@ -8,7 +8,7 @@ import numpy as np
 """
 
 
-def tanh(tensor: Tensor) -> Tensor:
+def tanh(tensor: 'Tensor') -> 'Tensor':
     data = np.tanh(tensor.data)
     requires_grad = tensor.requires_grad
 
@@ -23,7 +23,7 @@ def tanh(tensor: Tensor) -> Tensor:
     return Tensor(data, requires_grad, depends_on)
 
 
-def relu(tensor: Tensor) -> Tensor:
+def relu(tensor: 'Tensor') -> 'Tensor':
     tensor = ensure_tensor(tensor)
     data = np.where(tensor.data > 0, tensor.data, 0)
     requires_grad = tensor.requires_grad
@@ -36,7 +36,7 @@ def relu(tensor: Tensor) -> Tensor:
     return Tensor(data, requires_grad, depends_on)
 
 
-def leaky_relu(tensor: Tensor, alpha:float=0.01) -> Tensor:
+def leaky_relu(tensor: 'Tensor', alpha:float=0.01) -> 'Tensor':
     tensor = ensure_tensor(tensor)
 
     data = np.where(tensor.data > 0, tensor.data, alpha * tensor.data)
@@ -50,7 +50,7 @@ def leaky_relu(tensor: Tensor, alpha:float=0.01) -> Tensor:
     return Tensor(data, requires_grad, depends_on)
 
 
-def sigmoid(tensor: Tensor) -> Tensor:
+def sigmoid(tensor: 'Tensor') -> 'Tensor':
     tensor = ensure_tensor(tensor)
 
     def _sigmoid(x: np.ndarray) -> np.ndarray:
@@ -67,7 +67,7 @@ def sigmoid(tensor: Tensor) -> Tensor:
     return Tensor(data, requires_grad, depends_on)
 
 
-def softmax(tensor: Tensor, dim: int = 1) -> Tensor:
+def softmax(tensor: 'Tensor', dim: int = 1) -> 'Tensor':
     tensor = ensure_tensor(tensor)
 
     def _stable_softmax(x: np.ndarray) -> np.ndarray:

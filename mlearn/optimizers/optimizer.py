@@ -42,7 +42,7 @@ class Momentum(Optimizer):
         动量梯度下降
         Momentum
     """
-    def __init__(self, module: Module, lr: float = 1e-3, momentum: float = 0.9):
+    def __init__(self, module: 'Module', lr: float = 1e-3, momentum: float = 0.9):
         self.module = module
         self.lr = lr
         self.momentum = momentum
@@ -57,7 +57,7 @@ class Momentum(Optimizer):
             parameter -= self.lr * v
 
 class RMSProp(Optimizer):
-    def __init__(self, module: Module, lr: float = 1e-3, beta: float = 0.999, eps: float = 1e-7) -> None:
+    def __init__(self, module: 'Module', lr: float = 1e-3, beta: float = 0.999, eps: float = 1e-7) -> None:
         """
             Module -> 神经网络模型
             lr -> 学习率
@@ -84,8 +84,10 @@ class RMSProp(Optimizer):
             parameter -=   eta
 
 class Adam(Optimizer):
-
-    def __init__(self, module: Module, lr: float = 1e-3, betas:float=(0.9, 0.999),eps:float=1e-7) -> None:
+    """
+        Adaptive Moment Estimation
+    """
+    def __init__(self, module: 'Module', lr: float = 1e-3, betas:float=(0.9, 0.999),eps:float=1e-7) -> None:
         super(Adam,self).__init__(lr, module)
         self.betas = betas
         self.eps = eps
