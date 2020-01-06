@@ -9,7 +9,8 @@ class Dependency(NamedTuple):
     tensor: 'Tensor'
     grad_fn: Callable[[np.ndarray], np.ndarray]
 
-Arrayable = Union[float, list, np.ndarray]
+Arrayable = Union[float, list, int, np.ndarray]
+
 
 def ensure_array(arrayable: Arrayable) -> np.ndarray:
     if isinstance(arrayable, np.ndarray):
@@ -25,16 +26,14 @@ def ensure_tensor(tensorable: Tensorable) -> 'Tensor':
     else:
         return Tensor(tensorable)
 
-
 class Tensor:
     def __init__(self,
                  data: Arrayable,
                  requires_grad: bool = False,
                  depends_on: List[Dependency] = None) -> None:
-        self._data = ensure_array(data)
+        self.__data = ensure_array(data)
         self.requires_grad = requires_grad
         self.depends_on = depends_on or []
-        self.shape = self.data.shape
         self.grad: Optional['Tensor'] = None
         self.ndim = self.data.ndim
 
@@ -43,17 +42,29 @@ class Tensor:
 
     @property
     def data(self) -> np.ndarray:
-        return self._data
+        return self.__data
 
     @property
     def T(self) -> 'Tensor':
         return self.transpose()
 
+    @property
+    def size(self) -> int:
+        return self.data.size
+
+    @property
+    def shape(self) -> tuple:
+        return self.data.shape
+
+    @property
+    def dtype(self) -> np.dtype:
+        return (self.__data.dtype)
+
     @data.setter
     def data(self, new_data: np.ndarray) -> None:
         # if isinstance(new_data,Tensor):
         #     new_data = new_data.data
-        self._data = new_data
+        self.__data = new_data
         self.grad = None
 
     def __setGrad(self, grad: np.ndarray) -> None:
@@ -102,6 +113,10 @@ class Tensor:
         requires_grad = self.requires_grad
         depends_on = self.depends_on
         return Tensor(data, requires_grad, depends_on)
+
+    def double(self) -> 'Tensor':
+        self.data.astype(np.float64)
+        return self
 
     def long(self) -> 'Tensor':
         data = self.data.astype(np.long)
