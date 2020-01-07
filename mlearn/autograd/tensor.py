@@ -156,20 +156,20 @@ class Tensor:
         depends_on = self.depends_on
         return Tensor(data, requires_grad, depends_on)
 
-    # def reshape(self, *shape) -> 'Tensor':
-    #     self.data = self.data.reshape(*shape)
-    #     return self
-    #     requires_grad = self.requires_grad
-    #     if requires_grad:
-    #         def reshapeBackward(grad: np.ndarray) -> np.ndarray:
-    #             return grad.reshape(*self.grad.shape)
-    #         depends_on = [Dependency(self, reshapeBackward)]
-    #     else:
-    #         depends_on = []
+    def reshape(self, *shape) -> 'Tensor':
+        self.data = self.data.reshape(*shape)
+        return self
+        requires_grad = self.requires_grad
+        if requires_grad:
+            def reshapeBackward(grad: np.ndarray) -> np.ndarray:
+                return grad.reshape(*self._grad.shape)
+            depends_on = [Dependency(self, reshapeBackward)]
+        else:
+            depends_on = []
 
-    #     return Tensor(data,
-    #                   requires_grad,
-    #                   depends_on)
+        return Tensor(data,
+                      requires_grad,
+                      depends_on)
 
     def flatten(self) -> 'Tensor':
         return Tensor(self.data.flatten(),
