@@ -32,13 +32,25 @@ class Tensor:
                  requires_grad: bool = False,
                  depends_on: List[Dependency] = None) -> None:
         self.__data = ensure_array(data)
+        self.__is_leaf = True
         self.requires_grad = requires_grad
         self.depends_on = depends_on or []
-        self.grad: Optional['Tensor'] = None
-        self.ndim = self.data.ndim
+        self.__grad: Optional['Tensor'] = None
 
         if self.requires_grad:
             self.zero_grad()
+
+    @property
+    def is_leaf(self) -> bool:
+        return self.__is_leaf
+
+    @is_leaf.setter
+    def is_leaf(self, _b):
+        self.__is_leaf = _b
+
+    def no_leaf(self):
+        self.is_leaf = False
+        return self
 
     @property
     def data(self) -> np.ndarray:
@@ -57,6 +69,10 @@ class Tensor:
         return self.data.shape
 
     @property
+    def ndim(self) -> int:
+        return self.data.ndim
+
+    @property
     def dtype(self) -> np.dtype:
         return (self.__data.dtype)
 
@@ -65,17 +81,33 @@ class Tensor:
         # if isinstance(new_data,Tensor):
         #     new_data = new_data.data
         self.__data = new_data
-        self.grad = None
+        self._grad = None
 
-    def __setGrad(self, grad: np.ndarray) -> None:
-        self.grad = grad
+    @property
+    def grad(self):
+        if self.requires_grad and self.is_leaf:
+            return self._grad
+        else:
+            return None
+
+
+    @property
+    def _grad(self):
+        return self.__grad
+
+    @_grad.setter
+    def _grad(self, grad):
+        self.__grad = grad
+
+    def __setGrad(self, grad):
+        self.__grad = grad
 
     # Transpose
     def transpose(self) -> 'Tensor':
         _data = self.data.T
         requires_grad = self.requires_grad
         if requires_grad:
-            _grad = self.grad.T
+            _grad = self._grad.T
             depends_on = self.depends_on
         else:
             _grad = None
@@ -88,10 +120,10 @@ class Tensor:
         return self.data
 
     def zero_grad(self) -> None:
-        self.grad = Tensor(np.zeros_like(self.data))
+        self._grad = Tensor(np.zeros_like(self.data))
 
     def backward(self, grad: 'Tensor' = None) -> None:
-        assert self.requires_grad, "在无梯度记录要求的Tensor上调用backward()"
+        assert self.requires_grad, "在无梯度记录要求的Tensor上调用backward()" + repr(self)
 
         if grad is None:
             if self.shape == ():
@@ -99,7 +131,7 @@ class Tensor:
             else:
                 raise RuntimeError("只能够对Scaler进行求导")
 
-        self.grad.data = self.grad.data + grad.data
+        self._grad.data = self._grad.data + grad.data
 
         for dependency in self.depends_on:
             backward_grad = dependency.grad_fn(grad.data)
@@ -124,19 +156,20 @@ class Tensor:
         depends_on = self.depends_on
         return Tensor(data, requires_grad, depends_on)
 
-    def reshape(self, *shape) -> 'Tensor':
-        data = self.data.reshape(*shape)
-        requires_grad = self.requires_grad
-        if requires_grad:
-            def reshapeBackward(grad: np.ndarray) -> np.ndarray:
-                return grad.reshape(*self.grad.shape)
-            depends_on = [Dependency(self, reshapeBackward)]
-        else:
-            depends_on = []
+    # def reshape(self, *shape) -> 'Tensor':
+    #     self.data = self.data.reshape(*shape)
+    #     return self
+    #     requires_grad = self.requires_grad
+    #     if requires_grad:
+    #         def reshapeBackward(grad: np.ndarray) -> np.ndarray:
+    #             return grad.reshape(*self.grad.shape)
+    #         depends_on = [Dependency(self, reshapeBackward)]
+    #     else:
+    #         depends_on = []
 
-        return Tensor(data,
-                      requires_grad,
-                      depends_on)
+    #     return Tensor(data,
+    #                   requires_grad,
+    #                   depends_on)
 
     def flatten(self) -> 'Tensor':
         return Tensor(self.data.flatten(),
@@ -234,7 +267,7 @@ def _tensor_sum(t: Tensor) -> Tensor:
 
     return Tensor(data,
                   requires_grad,
-                  depends_on)
+                  depends_on).no_leaf()
 
 
 def zeros(*shape, requires_grad: bool = False) -> 'Tensor':
@@ -292,7 +325,7 @@ def _add(t1: Tensor, t2: Tensor) -> Tensor:
 
     return Tensor(data,
                   requires_grad,
-                  depends_on)
+                  depends_on).no_leaf()
 
 
 def _mul(t1: Tensor, t2: Tensor) -> Tensor:
@@ -335,7 +368,7 @@ def _mul(t1: Tensor, t2: Tensor) -> Tensor:
 
     return Tensor(data,
                   requires_grad,
-                  depends_on)
+                  depends_on).no_leaf()
 
 
 def _pow(t: Tensor, pow: float) -> Tensor:
@@ -347,7 +380,7 @@ def _pow(t: Tensor, pow: float) -> Tensor:
         depends_on = [Dependency(t, pow_backward)]
     else:
         depends_on = []
-    return Tensor(data, requires_grad, depends_on)
+    return Tensor(data, requires_grad, depends_on).no_leaf()
 
 
 def _matmul(t1: Tensor, t2: Tensor) -> Tensor:
@@ -368,7 +401,7 @@ def _matmul(t1: Tensor, t2: Tensor) -> Tensor:
 
     return Tensor(data,
                   requires_grad,
-                  depends_on)
+                  depends_on).no_leaf()
 
 
 def _neg(t: Tensor) -> Tensor:
@@ -380,7 +413,7 @@ def _neg(t: Tensor) -> Tensor:
         depends_on = [Dependency(t, negBackward)]
     else:
         depends_on = []
-    return Tensor(data, requires_grad, depends_on)
+    return Tensor(data, requires_grad, depends_on).no_leaf()
 
 
 def _sub(t1: Tensor, t2: Tensor) -> Tensor:
@@ -401,7 +434,7 @@ def _slice(t: Tensor, idx: slice) -> Tensor:
     else:
         depends_on = []
 
-    return Tensor(data, requires_grad, depends_on)
+    return Tensor(data, requires_grad, depends_on).no_leaf()
 
 
 def _div(t1: Tensor, t2: Tensor) -> Tensor:
@@ -440,4 +473,4 @@ def _div(t1: Tensor, t2: Tensor) -> Tensor:
 
     return Tensor(data,
                   requires_grad,
-                  depends_on)
+                  depends_on).no_leaf()
