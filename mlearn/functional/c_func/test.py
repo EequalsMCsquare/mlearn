@@ -1,1 +1,0 @@
-import c_func

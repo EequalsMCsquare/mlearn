@@ -90,7 +90,6 @@ class Tensor:
         else:
             return None
 
-
     @property
     def _grad(self):
         return self.__grad
@@ -123,7 +122,7 @@ class Tensor:
         self._grad = Tensor(np.zeros_like(self.data))
 
     def backward(self, grad: 'Tensor' = None) -> None:
-        assert self.requires_grad, "在无梯度记录要求的Tensor上调用backward()" + repr(self)
+        # assert self.requires_grad, "在无梯度记录要求的Tensor上调用backward()\n" + repr(self) + "\n"+repr(grad)
 
         if grad is None:
             if self.shape == ():
@@ -132,6 +131,7 @@ class Tensor:
                 raise RuntimeError("只能够对Scaler进行求导")
 
         self._grad.data = self._grad.data + grad.data
+
 
         for dependency in self.depends_on:
             backward_grad = dependency.grad_fn(grad.data)
@@ -147,7 +147,7 @@ class Tensor:
         return Tensor(data, requires_grad, depends_on)
 
     def double(self) -> 'Tensor':
-        self.data.astype(np.float64)
+        self.data = self.data.astype(np.float64)
         return self
 
     def long(self) -> 'Tensor':
@@ -157,8 +157,8 @@ class Tensor:
         return Tensor(data, requires_grad, depends_on)
 
     def reshape(self, *shape) -> 'Tensor':
-        self.data = self.data.reshape(*shape)
-        return self
+        data = self.data.reshape(*shape)
+        # return self
         requires_grad = self.requires_grad
         if requires_grad:
             def reshapeBackward(grad: np.ndarray) -> np.ndarray:
@@ -401,7 +401,7 @@ def _matmul(t1: Tensor, t2: Tensor) -> Tensor:
 
     return Tensor(data,
                   requires_grad,
-                  depends_on).no_leaf()
+                  depends_on)#.no_leaf()
 
 
 def _neg(t: Tensor) -> Tensor:

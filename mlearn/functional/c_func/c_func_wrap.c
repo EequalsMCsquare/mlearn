@@ -3353,22 +3353,14 @@ SWIGINTERN PyObject *_wrap_sample_conv2d(PyObject *SWIGUNUSEDPARM(self), PyObjec
   int arg10 ;
   int arg11 ;
   int arg12 ;
-  double *arg13 = (double *) 0 ;
-  int arg14 ;
-  int arg15 ;
-  int arg16 ;
-  int arg17 ;
-  int arg18 ;
   PyArrayObject *array1 = NULL ;
   int is_new_object1 = 0 ;
   PyArrayObject *array7 = NULL ;
   int is_new_object7 = 0 ;
-  PyArrayObject *array13 = NULL ;
-  int is_new_object13 = 0 ;
-  PyObject *swig_obj[3] ;
+  PyObject *swig_obj[2] ;
   double *result = 0 ;
   
-  if (!SWIG_Python_UnpackTuple(args, "sample_conv2d", 3, 3, swig_obj)) SWIG_fail;
+  if (!SWIG_Python_UnpackTuple(args, "sample_conv2d", 2, 2, swig_obj)) SWIG_fail;
   {
     npy_intp size[5] = {
       -1, -1, -1, -1, -1 
@@ -3401,23 +3393,7 @@ SWIGINTERN PyObject *_wrap_sample_conv2d(PyObject *SWIGUNUSEDPARM(self), PyObjec
     arg12 = (int) array_size(array7,4);
     
   }
-  {
-    npy_intp size[5] = {
-      -1, -1, -1, -1, -1 
-    };
-    array13 = obj_to_array_contiguous_allow_conversion(swig_obj[2], NPY_DOUBLE,
-      &is_new_object13);
-    if (!array13 || !require_dimensions(array13, 5) ||
-      !require_size(array13, size, 5)) SWIG_fail;
-    arg13 = (double*) array_data(array13);
-    arg14 = (int) array_size(array13,0);
-    arg15 = (int) array_size(array13,1);
-    arg16 = (int) array_size(array13,2);
-    arg17 = (int) array_size(array13,3);
-    arg18 = (int) array_size(array13,4);
-    
-  }
-  result = (double *)sample_conv2d(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17,arg18);
+  result = (double *)sample_conv2d(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_double, 0 |  0 );
   {
     if (is_new_object1 && array1)
@@ -3429,12 +3405,6 @@ SWIGINTERN PyObject *_wrap_sample_conv2d(PyObject *SWIGUNUSEDPARM(self), PyObjec
     if (is_new_object7 && array7)
     {
       Py_DECREF(array7); 
-    }
-  }
-  {
-    if (is_new_object13 && array13)
-    {
-      Py_DECREF(array13); 
     }
   }
   return resultobj;
@@ -3449,12 +3419,6 @@ fail:
     if (is_new_object7 && array7)
     {
       Py_DECREF(array7); 
-    }
-  }
-  {
-    if (is_new_object13 && array13)
-    {
-      Py_DECREF(array13); 
     }
   }
   return NULL;

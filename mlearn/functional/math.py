@@ -100,7 +100,7 @@ def mean(tensor: Tensor) -> Tensor:
     _len = tensor.data.flatten().shape[0]
     if requires_grad:
         def grad_fn(grad: np.ndarray) -> np.ndarray:
-            return grad * (1 / _len)
+            return grad / _len
         depends_on = [Dependency(tensor, grad_fn)]
     else:
         depends_on = []

@@ -17,7 +17,7 @@ dot_sum(double * t1, double * t2, int length)
 
 
 double *
-__sample_conv(double * strided_sample, int shapes[], double * weights, double * bias, int out_channels)
+__sample_conv(double * strided_sample, int shapes[], double * weights, int out_channels)
 {
     // 传入一个stride后的tensor
     // e.g shape => (24,24,3,5,5)
@@ -36,20 +36,19 @@ __sample_conv(double * strided_sample, int shapes[], double * weights, double * 
             // 比如 24,24,3,5,5， 那么卷积框大小就是3,5,5
             // Result (8,24,24)
             result[idx_1 + i] = dot_sum(&strided_sample[i * strides],
-                &weights[idx_2], strides) + bias[k];
+                &weights[idx_2], strides);
     }
     return result;
 }
 
 double *
 sample_conv2d(double * inputs, int inputs_a, int inputs_b, int inputs_c, int inputs_d, int inputs_e,
-  double * weights, int weights_a, int weights_b, int weights_c, int weights_d, int weights_e,
-  double * bias, int bias_a, int bias_b, int bias_c, int bias_d, int bias_e)
+  double * weights, int weights_a, int weights_b, int weights_c, int weights_d, int weights_e)
 {
     int inputs_shape[] = { inputs_a, inputs_b, inputs_c, inputs_d, inputs_e };
     int out_channel    = weights_b;
 
-    return __sample_conv(inputs, inputs_shape, weights, bias, out_channel);
+    return __sample_conv(inputs, inputs_shape, weights, out_channel);
 }
 
 
@@ -111,7 +110,7 @@ conv2d_test(int argc, char * argv[])
     start = clock();
     for (int i = 0; i < EPOCH; i++)
         result = sample_conv2d(inputs, 24, 24, 3, 5, 5,
-            weights, 1, 8, 3, 5, 5, bias, 8, 1, 1, 1, 1);
+            weights, 1, 8, 3, 5, 5);
     end = clock();
 
     printf("Finished in %f Seconds\n", (double) (end - start) / CLOCKS_PER_SEC);

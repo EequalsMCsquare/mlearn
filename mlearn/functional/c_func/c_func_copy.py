@@ -80,9 +80,9 @@ import numpy as np
 from ctypes import c_double
 import copy
 
-def sample_conv2d(inputs, weights, bias):
+def sample_conv2d(inputs, weights):
     _shape = (weights.shape[1], inputs.shape[0], inputs.shape[1])
-    ptr = _c_func.sample_conv2d(inputs, weights, bias)
+    ptr = _c_func.sample_conv2d(inputs, weights)
     out = (c_double * (inputs.shape[1]*inputs.shape[0]*weights.shape[1])).from_address(int(ptr))
     temp = np.ctypeslib.as_array(out).reshape(*_shape)
     arr = np.copy(temp)
