@@ -22,7 +22,7 @@
     - 无梯度计算的softmax `交叉熵误差函数一已经内置了softmax`
 4. 神经网络层
     - Dense 全连接
-    - 2维卷积 `在嵌套多层的时候求导结果和torch不一样`
+    - 2维卷积 `反向传播NotImplemented`
     - Flatten
     - Dropout `好像有问题，忘记了`
 5. 误差函数
